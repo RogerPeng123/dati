@@ -14,6 +14,7 @@ Route::group(['namespace' => 'Wechat'], function ($router) {
     //登录成功，也就是携带token才能进行的操作
     $router->group(['middleware' => 'api.login.check'], function ($router) {
         //TODO 题期列表
+        $router->get('/cycle/lists', 'CycleController@lists');
 
         //TODO 单期题目列表
 
