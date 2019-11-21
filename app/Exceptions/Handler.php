@@ -54,7 +54,11 @@ class Handler extends ExceptionHandler
     {
         //不存在路由捕获
         if ($exception instanceof NotFoundHttpException) {
-            return ResponseApi::ApiError('路由不存在', [], ResponseApi::API_ROUTER_NOTHINGNESS);
+            if ($request->ajax()) {
+                return ResponseApi::ApiError('路由不存在', [], ResponseApi::API_ROUTER_NOTHINGNESS);
+            } else {
+                return redirect()->route('login');
+            }
         }
 
         //请求路由方式不正确异常捕获
@@ -69,7 +73,12 @@ class Handler extends ExceptionHandler
 
         //未登陆状态的错误异常捕获
         if ($exception instanceof AuthenticationException) {
-            return ResponseApi::ApiError('请先进行登录验证', [], ResponseApi::NOT_LOGIN_ERROR);
+            if ($request->ajax()) {
+                return ResponseApi::ApiError('请先进行登录验证', [], ResponseApi::NOT_LOGIN_ERROR);
+            } else {
+                return redirect()->route('login');
+            }
+
         }
 
         return parent::render($request, $exception);
