@@ -34,6 +34,9 @@ Route::group([], function ($router) {
 
             // 视图操作分之测试s
             $router->resource('view', 'ViewsController');
+
+            // 期题管理
+            $router->resource('/cycle', 'CycleController');
         });
 
     });

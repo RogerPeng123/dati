@@ -21,6 +21,6 @@ class CycleController extends Controller
     //TODO 获取周期列表
     public function lists()
     {
-        return $this->cycleService->cycleLists();
+        dd($this->cycleService->cycleLists()->items());
     }
 }

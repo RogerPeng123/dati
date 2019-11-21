@@ -21,10 +21,17 @@ class CycleServiceImpl implements CycleService
 
     function cycleLists()
     {
-        return $this->cycleModels
+        $db = $this->cycleModels
             ->orderBy('years', 'desc')
             ->orderBy('months', 'desc')
             ->orderBy('cycles', 'desc')
-            ->get();
+            ->simplePaginate(10, ['id', 'title', 'years', 'months', 'cycles'])
+            ->items();
+
+        foreach ($db as &$item) {
+
+        }
+
+
     }
 }
