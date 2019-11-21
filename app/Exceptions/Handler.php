@@ -57,7 +57,7 @@ class Handler extends ExceptionHandler
             if ($request->ajax()) {
                 return ResponseApi::ApiError('路由不存在', [], ResponseApi::API_ROUTER_NOTHINGNESS);
             } else {
-                return redirect()->route('login');
+                return redirect()->route('admin.home');
             }
         }
 
@@ -76,7 +76,7 @@ class Handler extends ExceptionHandler
             if ($request->ajax()) {
                 return ResponseApi::ApiError('请先进行登录验证', [], ResponseApi::NOT_LOGIN_ERROR);
             } else {
-                return redirect()->route('login');
+                return redirect()->route('admin.home');
             }
 
         }

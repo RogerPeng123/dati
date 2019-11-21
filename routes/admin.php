@@ -20,7 +20,8 @@ Route::group([], function ($router) {
 
             $router->post('/setting/admin', 'UserController@setting')->name('admin.setting.adminer');
 
-            $router->get('/', 'HomeController@index');
+            $router->get('/', 'HomeController@index')->name('admin.home');
+
             // 权限
             $router->resource('permission', 'PermissionController');
             // 角色
