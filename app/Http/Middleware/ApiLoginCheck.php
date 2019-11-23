@@ -47,7 +47,7 @@ class ApiLoginCheck
                     ApiResponseExceptions::class, '登录信息已过期,请重新登录');
             }
 
-            Cache::put('API_TOKEN_MEMBER_' . $this->memberModel->api_token, $this->memberModel);
+            Cache::put('API_TOKEN_MEMBER_' . $this->memberModel->api_token, $this->memberModel, 60 * 24 * 30);
         }
 
         return $next($request);

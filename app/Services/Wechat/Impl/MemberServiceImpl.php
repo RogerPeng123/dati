@@ -69,8 +69,7 @@ class MemberServiceImpl implements MemberService
         $this->memberModel->api_token = ActionToolkit::setApiToken($this->memberModel->id);
         $this->memberModel->save();
 
-        Cache::put('API_TOKEN_MEMBER_' . $this->memberModel->api_token, $this->memberModel);
-
+        Cache::put('API_TOKEN_MEMBER_' . $this->memberModel->api_token, $this->memberModel, 60 * 24 * 30);
 
         unset($this->memberModel->password);
         unset($this->memberModel->deleted_at);

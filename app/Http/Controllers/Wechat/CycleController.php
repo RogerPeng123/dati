@@ -44,6 +44,10 @@ class CycleController extends Controller
 
     public function quetionSubmit(CycleRequest $request)
     {
+        $params = $request->only('qc_id', 'body');
 
+        $result = $this->cycleService->cycleSubmit($params, $request->header('x-api-key'));
+
+        return ResponseApi::ApiSuccess('success', $result);
     }
 }

@@ -9,6 +9,9 @@ class Question extends Model
 {
     use SoftDeletes;
 
+    const TYPE_JUDGE = 1;
+    const TYPE_CHOOSE = 2;
+
     protected $table = 'question';
 
     protected $primaryKey = 'id';
