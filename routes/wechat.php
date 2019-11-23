@@ -13,12 +13,14 @@ Route::group(['namespace' => 'Wechat'], function ($router) {
 
     //登录成功，也就是携带token才能进行的操作
     $router->group(['middleware' => 'api.login.check'], function ($router) {
-        //TODO 题期列表
+        //题期列表
         $router->get('/cycle/lists', 'CycleController@lists');
 
-        //TODO 单期题目列表
+        //单期题目列表
+        $router->get('/cycle/question/{id}', 'CycleController@question');
 
-        //TODO 提交答卷
+        //提交答卷
+        $router->post('/cycle/question', 'CycleController@quetionSubmit');
     });
 
 

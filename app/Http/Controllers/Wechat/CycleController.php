@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Wechat;
 use App\Http\Requests\Wechat\CycleRequest;
 use App\Services\Wechat\CycleService;
 use App\Http\Controllers\Controller;
+use App\Toolkit\ResponseApi;
 
 class CycleController extends Controller
 {
@@ -18,9 +19,31 @@ class CycleController extends Controller
         $this->cycleService = $cycleService;
     }
 
-    //TODO 获取周期列表
+    /**
+     * 获取周期列表
+     * Author: roger peng
+     * Time: 2019/11/21 23:03
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function lists()
     {
-        dd($this->cycleService->cycleLists()->items());
+        return ResponseApi::ApiSuccess('success', $this->cycleService->cycleLists());
+    }
+
+    /**
+     * 获取单期的问题信息
+     * Author: roger peng
+     * Time: 2019/11/21 23:04
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function question($id)
+    {
+        return ResponseApi::ApiSuccess('success', $this->cycleService->cycleQuestion($id));
+    }
+
+    public function quetionSubmit(CycleRequest $request)
+    {
+
     }
 }

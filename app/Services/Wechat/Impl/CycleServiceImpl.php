@@ -5,6 +5,7 @@ namespace App\Services\Wechat\Impl;
 
 
 use App\Models\Cycles;
+use App\Models\Question;
 use App\Services\Wechat\CycleService;
 
 class CycleServiceImpl implements CycleService
@@ -14,9 +15,15 @@ class CycleServiceImpl implements CycleService
      */
     private $cycleModels;
 
-    public function __construct(Cycles $cycleModels)
+    /**
+     * @var Question
+     */
+    private $questionModels;
+
+    public function __construct(Cycles $cycleModels, Question $questionModels)
     {
         $this->cycleModels = $cycleModels;
+        $this->questionModels = $questionModels;
     }
 
     function cycleLists()
@@ -25,13 +32,25 @@ class CycleServiceImpl implements CycleService
             ->orderBy('years', 'desc')
             ->orderBy('months', 'desc')
             ->orderBy('cycles', 'desc')
-            ->simplePaginate(10, ['id', 'title', 'years', 'months', 'cycles'])
-            ->items();
+            ->simplePaginate(10, ['id', 'title', 'years', 'months', 'cycles']);
+
+        return $db->items();
+    }
+
+    function cycleQuestion(int $id)
+    {
+        $db = $this->questionModels->where('qc_id', $id)->get(['id', 'title', 'type', 'judge_success']);
 
         foreach ($db as &$item) {
-
+            $item['question_options'] = $item->questionOptions;
         }
 
+        return $db;
+    }
+
+    function cycleSubmit()
+    {
 
     }
+
 }

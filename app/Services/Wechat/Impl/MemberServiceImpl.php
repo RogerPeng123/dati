@@ -35,11 +35,13 @@ class MemberServiceImpl implements MemberService
         $this->memberModel->username = $param['username'];
         $this->memberModel->nickname = $param['nickname'];
         $this->memberModel->password = Crypt::encryptString($param['password']);
+        $this->memberModel->cover = '/cover/cover.jpeg';
 
         $result = $this->memberModel->save();
 
         throw_unless($result, ApiResponseExceptions::class, '注册失败');
 
+        unset($this->memberModel->password);
         return $this->memberModel;
     }
 
@@ -68,6 +70,12 @@ class MemberServiceImpl implements MemberService
         $this->memberModel->save();
 
         Cache::put('API_TOKEN_MEMBER_' . $this->memberModel->api_token, $this->memberModel);
+
+
+        unset($this->memberModel->password);
+        unset($this->memberModel->deleted_at);
+        unset($this->memberModel->created_at);
+        unset($this->memberModel->cover);
 
         return $this->memberModel;
     }

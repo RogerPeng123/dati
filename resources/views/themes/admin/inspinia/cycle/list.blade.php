@@ -82,7 +82,7 @@
                                             @foreach($data as $item)
                                                 <tr role="row" class="odd">
                                                     <td>{{ $item->id }}</td>
-                                                    <td>{{ $item->title }}</td>
+                                                    <td><a href="{{ route('index') }}"> {{ $item->title }}</a></td>
                                                     <td>{{ $item->num }}</td>
                                                     <td>{{ $item->status ? '开放' : '未开放' }}</td>
                                                     <td>{{ $item->created_at }}</td>

@@ -2,29 +2,28 @@
 
 namespace App\Http\Requests\Wechat;
 
-use Illuminate\Foundation\Http\FormRequest;
-
-class CycleRequest extends FormRequest
+class CycleRequest extends BaseRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize()
-    {
-        return false;
-    }
-
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
     public function rules()
     {
-        return [
-            //
+        $rules = [
+            'quetionSubmit' => [
+                'body' => ['required', 'json']
+            ]
         ];
+
+        return $rules[$this->action];
+    }
+
+    public function messages()
+    {
+        $message = [
+            'quetionSubmit' => [
+                'body.required' => '答题提交数据不能为空',
+                'body.jaon' => '答题提交数据格式不正确'
+            ]
+        ];
+
+        return $message[$this->action];
     }
 }
