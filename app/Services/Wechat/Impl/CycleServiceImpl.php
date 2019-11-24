@@ -77,6 +77,7 @@ class CycleServiceImpl implements CycleService
      */
     function cycleSubmit(array $params, string $token)
     {
+        //解析json数据
         $body = json_decode($params['body'], true);
 
         $cycles = $this->cycleModels->find($params['qc_id']);
