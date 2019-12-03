@@ -37,7 +37,13 @@ Route::group([], function ($router) {
             $router->resource('view', 'ViewsController');
 
             // 期题管理
-            $router->resource('/cycle', 'CycleController');
+            $router->resource('cycle', 'CycleController');
+
+            // 期题题目管理
+            $router->resource('question', 'QuestionController');
+
+            //答案管理
+            $router->resource('options', 'QuestionOptionsController');
         });
 
     });

@@ -31,18 +31,18 @@
 @section('content')
     <div class="row wrapper border-bottom white-bg page-heading">
         <div class="col-lg-10">
-            <h2>{!! trans('cycle.title') !!}</h2>
-            <ol class="breadcrumb">
-                <li>
-                    <a href="javasctipt:;">{!! trans('home.title') !!}</a>
-                </li>
-                <li>
-                    <a href="{{route('cycle.index')}}">{!! trans('cycle.title') !!}</a>
-                </li>
-                <li class="active">
-                    <strong>{!!trans('common.edit').trans('cycle.slug')!!}</strong>
-                </li>
-            </ol>
+            <h2>{!! trans('question.title') !!}</h2>
+            {{--            <ol class="breadcrumb">--}}
+            {{--                <li>--}}
+            {{--                    <a href="javasctipt:;">{!! trans('home.title') !!}</a>--}}
+            {{--                </li>--}}
+            {{--                <li>--}}
+            {{--                    <a href="{{route('cycle.index')}}">{!! trans('cycle.title') !!}</a>--}}
+            {{--                </li>--}}
+            {{--                <li class="active">--}}
+            {{--                    <strong>{!!trans('common.edit').trans('cycle.slug')!!}</strong>--}}
+            {{--                </li>--}}
+            {{--            </ol>--}}
         </div>
         <div class="col-lg-2">
             <div class="title-action">
@@ -57,7 +57,7 @@
             <div class="col-lg-12">
                 <div class="ibox float-e-margins">
                     <div class="ibox-title">
-                        <h5>{!!trans('common.edit').trans('cycle.slug')!!}</h5>
+                        <h5>{!!trans('common.edit').trans('question.slug')!!}</h5>
                         <div class="ibox-tools">
                             <a class="collapse-link">
                                 <i class="fa fa-chevron-up"></i>
@@ -69,15 +69,15 @@
                     </div>
                     <div class="ibox-content">
                         @include('flash::message')
-                        <form method="post" action="{{route('cycle.update', [encodeId($view->id, 'id')])}}"
+                        <form method="post" action="{{route('question.update', [encodeId($view->id, 'id')])}}"
                               class="form-horizontal">
                             {{csrf_field()}}
                             {{method_field('PUT')}}
 
                             <div class="form-group{{ $errors->has('title') ? ' has-error' : '' }}">
-                                <label class="col-sm-2 control-label">{{trans('cycle.titleName')}}</label>
+                                <label class="col-sm-2 control-label">题目</label>
                                 <div class="col-sm-10">
-                                    <input type="text" class="form-control" name="title" readonly unselectable="on"
+                                    <input type="text" class="form-control" name="title"
                                            value="{{old('title', $view->title)}}">
                                     @if ($errors->has('title'))
                                         <span class="help-block m-b-none text-danger">{{ $errors->first('title') }}</span>
@@ -86,43 +86,49 @@
                             </div>
                             <div class="hr-line-dashed"></div>
 
-                            <div class="form-group{{ $errors->has('status') ? ' has-error' : '' }}">
-                                <label class="col-sm-2 control-label">{{trans('cycle.status')}}</label>
-                                <div class="col-sm-10">
+                            <input type="hidden" name="qc_id" value="{{ $qc_id }}">
+
+                            @if($view->type == 1)
+                                <div class="form-group{{ $errors->has('judge_success') ? ' has-error' : '' }}">
+                                    <label class="col-sm-2 control-label">题目对错</label>
                                     <div class="col-sm-10">
-                                        <div class="i-checks">
-                                            <label class="">
-                                                <div class="iradio_square-green {{ !$view->status ? '':'checked' }}" style="position: relative;">
-                                                    <input type="radio" value="1" name="status"
-                                                           class="radio-class" {{ !$view->status ? '':'checked' }}>
-                                                    <ins class="iCheck-helper"></ins>
-                                                </div>
-                                                <i></i> 开放
-                                            </label>
+                                        <div class="col-sm-10">
+                                            <div class="i-checks">
+                                                <label class="">
+                                                    <div class="iradio_square-green {{ !$view->judge_success ? '':'checked' }}"
+                                                         style="position: relative;">
+                                                        <input type="radio" value="1" name="judge_success"
+                                                               class="radio-class" {{ !$view->judge_success ? '':'checked' }}>
+                                                        <ins class="iCheck-helper"></ins>
+                                                    </div>
+                                                    <i></i> 正确
+                                                </label>
+                                            </div>
+                                            <div class="i-checks">
+                                                <label class="">
+                                                    <div class="iradio_square-green {{ !$view->judge_success ? 'checked':'' }}"
+                                                         style="position: relative;">
+                                                        <input type="radio" value="0" name="judge_success"
+                                                               class="radio-class" {{ !$view->judge_success ? 'checked':'' }}>
+                                                        <ins class="iCheck-helper"></ins>
+                                                    </div>
+                                                    <i></i> 错误
+                                                </label>
+                                            </div>
                                         </div>
-                                        <div class="i-checks">
-                                            <label class="">
-                                                <div class="iradio_square-green {{ !$view->status ? 'checked':'' }}" style="position: relative;">
-                                                    <input type="radio" value="0" name="status"
-                                                           class="radio-class" {{ !$view->status ? 'checked':'' }}>
-                                                    <ins class="iCheck-helper"></ins>
-                                                </div>
-                                                <i></i> 不开放
-                                            </label>
-                                        </div>
+                                        @if ($errors->has('judge_success'))
+                                            <span class="help-block m-b-none text-danger">{{ $errors->first('judge_success') }}</span>
+                                        @endif
                                     </div>
-                                    @if ($errors->has('status'))
-                                        <span class="help-block m-b-none text-danger">{{ $errors->first('status') }}</span>
-                                    @endif
                                 </div>
-                            </div>
-                            <div class="hr-line-dashed"></div>
+                                <div class="hr-line-dashed"></div>
+                            @endif
 
                             <div class="form-group">
                                 <div class="col-sm-4 col-sm-offset-2">
                                     <a class="btn btn-white"
-                                       href="{{ route('cycle.index') }}">{!! trans('common.cancel') !!}</a>
-                                    @if(haspermission('cyclecontroller.update'))
+                                       href="{{ route('question.index',['qc_id'=>$qc_id]) }}">{!! trans('common.cancel') !!}</a>
+                                    @if(haspermission('questioncontroller.update'))
                                         <button class="btn btn-primary" type="submit">
                                             {!! trans('common.edit') !!}
                                         </button>

@@ -54,7 +54,9 @@ class Handler extends ExceptionHandler
     {
         //不存在路由捕获
         if ($exception instanceof NotFoundHttpException) {
-            return ResponseApi::ApiError('路由不存在', [], ResponseApi::API_ROUTER_NOTHINGNESS);
+            if ($request->ajax()) {
+                return ResponseApi::ApiError('路由不存在', [], ResponseApi::API_ROUTER_NOTHINGNESS);
+            }
         }
 
         //请求路由方式不正确异常捕获

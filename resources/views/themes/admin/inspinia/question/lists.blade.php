@@ -5,21 +5,13 @@
 @section('content')
     <div class="row wrapper border-bottom white-bg page-heading">
         <div class="col-lg-10">
-            <h2>{!! trans('cycle.title') !!}</h2>
-            <ol class="breadcrumb">
-                <li>
-                    <a href="javascript:void(0);">{!! trans('cycle.title') !!}</a>
-                </li>
-                <li class="active">
-                    <strong>{!! trans('cycle.viewList') !!}</strong>
-                </li>
-            </ol>
+            <h2>{{ $cycle->title }}</h2>
         </div>
         <div class="col-lg-2">
             <div class="title-action">
                 @if(haspermission('usercontroller.create'))
-                    <a href="{{ route('cycle.create') }}" class="btn btn-info">
-                        <i class="fa fa-plus"></i> {!! trans('common.create').trans('cycle.slug') !!}
+                    <a href="{{ route('question.create',['qc_id'=>$cycle->id]) }}" class="btn btn-info">
+                        <i class="fa fa-plus"></i> {!! trans('common.create').trans('question.slug') !!}
                     </a>
                 @endif
             </div>
@@ -30,7 +22,7 @@
             <div class="col-lg-12">
                 <div class="ibox">
                     <div class="ibox-title">
-                        <h5>{!! trans('cycle.title') !!}</h5>
+                        <h5>{!! trans('question.title') !!}</h5>
                         <div class="ibox-tools">
                             <a class="collapse-link">
                                 <i class="fa fa-chevron-up"></i>
@@ -47,30 +39,14 @@
                         <div id="dataTableBuilder_wrapper"
                              class="dataTables_wrapper form-inline dt-bootstrap no-footer">
                             <div class="row">
-                                <div class="col-sm-6">
-                                    <form action="">
-                                        <div class="dataTables_length" id="dataTableBuilder_length">
-                                            <label>
-                                                搜索:
-                                                <input type="search" class="form-control input-sm" name="search"
-                                                       aria-controls="dataTableBuilder" value="{{ $search or '' }}">
-                                            </label>
-
-                                            <button class="btn btn-sm btn-primary">确定</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                            <div class="row">
                                 <div class="col-sm-12">
                                     <table class="table table-striped table-bordered table-hover dataTable no-footer"
                                            id="dataTableBuilder" role="grid" aria-describedby="dataTableBuilder_info">
                                         <thead>
                                         <tr role="row">
                                             <th>序号</th>
-                                            <th>标题</th>
-                                            <th>题量</th>
-                                            <th>是否开放</th>
+                                            <th>题目</th>
+                                            <th>问题类型</th>
                                             <th>创建时间</th>
                                             <th>修改时间</th>
                                             <th>操作</th>
@@ -83,23 +59,36 @@
                                                 <tr role="row" class="odd">
                                                     <td>{{ $item->id }}</td>
                                                     <td>
-                                                        <a href="{{ route('question.index',['qc_id'=>$item->id]) }}"> {{ $item->title }}</a>
+                                                        @if($item->type == \App\Models\Question::TYPE_JUDGE)
+                                                            <a href="{{ route('question.edit',['id'=>encodeId($item->id),'qc_id'=>$cycle->id]) }}"
+                                                               target="_blank">
+                                                                {{ $item->title }}
+                                                            </a>
+                                                        @elseif($item->type == \App\Models\Question::TYPE_CHOOSE)
+                                                            <a href="{{ route('options.index',['q_id'=>$item->id]) }}"
+                                                               target="_blank">
+                                                                {{ $item->title }}
+                                                            </a>
+                                                        @else
+                                                            {{ $item->title }}
+                                                        @endif
                                                     </td>
-                                                    <td>{{ $item->num }}</td>
-                                                    <td>{{ $item->status ? '开放' : '未开放' }}</td>
+                                                    @if($item->type == \App\Models\Question::TYPE_JUDGE)
+                                                        <td>判断题</td>
+                                                    @elseif($item->type == \App\Models\Question::TYPE_CHOOSE)
+                                                        <td>选择题</td>
+                                                    @else
+                                                        <td>未知类型</td>
+                                                    @endif
                                                     <td>{{ $item->created_at }}</td>
                                                     <td>{{ $item->updated_at }}</td>
                                                     <td>
-                                                        <a href="{{ route('cycle.show',['id'=>encodeId($item->id)]) }}"
-                                                           class="btn btn-xs btn-info tooltips">
-                                                            <i class="fa fa-eye"></i>
-                                                        </a>
-                                                        <a href="{{ route('cycle.edit',['id'=>encodeId($item->id)]) }}"
+                                                        <a href="{{ route('question.edit',['id'=>encodeId($item->id),'qc_id'=>$cycle->id]) }}"
                                                            class="btn btn-xs btn-outline btn-warning tooltips">
                                                             <i class="fa fa-edit"></i>
                                                         </a>
                                                         <a href="javascript:;"
-                                                           destroy-url="{{ route('cycle.destroy',['id'=>encodeId($item->id)]) }}"
+                                                           destroy-url="{{ route('question.destroy',['id'=>encodeId($item->id)]) }}"
                                                            class="btn btn-xs btn-outline btn-danger tooltips destroy_item">
                                                             <i class="fa fa-trash"></i>
                                                         </a>
@@ -108,7 +97,7 @@
                                             @endforeach
                                         @else
                                             <tr role="row" class="odd">
-                                                <td colspan="7">没有数据</td>
+                                                <td colspan="6">没有数据</td>
                                             </tr>
                                         @endif
 
@@ -122,7 +111,7 @@
                                 <div class="col-sm-12">
                                     <div class="dataTables_paginate paging_simple_numbers"
                                          id="dataTableBuilder_paginate">
-                                        {!! $data->appends(['search'=>$search])->links() !!}
+                                        {!! $data->appends(['qc_id'=>$qc_id])->links() !!}
                                     </div>
                                 </div>
                             </div>
