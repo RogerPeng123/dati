@@ -48,19 +48,8 @@
             </nav>
         </div>
         @yield('content')
-        <div class="footer">
-            <div class="pull-right">
-                <i class="fa fa-github"></i>
-                <strong>
-                    <a href="https://github.com/FlyingOranges/any" target="_blank">
-                        https://github.com/FlyingOranges/any
-                    </a>
-                </strong>
-            </div>
-            <div>
-                <strong>Copyright</strong> 通用后台 &copy; http://www.xxx.com
-            </div>
-        </div>
+{{--        <div class="footer">--}}
+{{--        </div>--}}
 
     </div>
 </div>
