@@ -70,10 +70,8 @@ class Handler extends ExceptionHandler
         }
 
         //未登陆状态的错误异常捕获
-        if ($exception instanceof AuthenticationException) {
-            if ($request->ajax()) {
-                return ResponseApi::ApiError('请先进行登录验证', [], ResponseApi::NOT_LOGIN_ERROR);
-            }
+        if ($exception instanceof ApiAuthenticationException) {
+            return ResponseApi::ApiError('请先进行登录验证', [], ResponseApi::NOT_LOGIN_ERROR);
         }
 
         return parent::render($request, $exception);

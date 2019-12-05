@@ -6,7 +6,7 @@ namespace App\Services\Wechat;
 
 interface CycleService
 {
-    function cycleLists();
+    function cycleLists($user);
 
     function cycleQuestion(int $id);
 

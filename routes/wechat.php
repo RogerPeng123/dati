@@ -23,22 +23,4 @@ Route::group(['namespace' => 'Wechat'], function ($router) {
         $router->post('/cycle/question', 'CycleController@quetionSubmit');
     });
 
-
-    $router->get('/test', function () {
-
-        $array = [
-            [
-                "q_id" => 3, "answer" => 1
-            ],
-            [
-                "q_id" => 4, "answer" => 8
-            ],
-            [
-                "q_id" => 5, "answer" => 1
-            ]
-        ];
-
-        return json_encode($array);
-    });
-
 });

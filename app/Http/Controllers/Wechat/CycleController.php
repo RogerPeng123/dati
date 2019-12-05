@@ -6,6 +6,8 @@ use App\Http\Requests\Wechat\CycleRequest;
 use App\Services\Wechat\CycleService;
 use App\Http\Controllers\Controller;
 use App\Toolkit\ResponseApi;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class CycleController extends Controller
 {
@@ -25,9 +27,13 @@ class CycleController extends Controller
      * Time: 2019/11/21 23:03
      * @return \Illuminate\Http\JsonResponse
      */
-    public function lists()
+    public function lists(Request $request)
     {
-        return ResponseApi::ApiSuccess('success', $this->cycleService->cycleLists());
+        $token = $request->header('x-api-key');
+
+        $user = Cache::get('API_TOKEN_MEMBER_' . $token);
+
+        return ResponseApi::ApiSuccess('success', $this->cycleService->cycleLists($user));
     }
 
     /**

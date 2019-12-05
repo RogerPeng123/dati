@@ -43,13 +43,21 @@ class CycleServiceImpl implements CycleService
         $this->questionAnswerModels = $questionAnswerModels;
     }
 
-    function cycleLists()
+    function cycleLists($user)
     {
         $db = $this->cycleModels
             ->orderBy('years', 'desc')
             ->orderBy('months', 'desc')
             ->orderBy('cycles', 'desc')
             ->simplePaginate(10, ['id', 'title', 'years', 'months', 'cycles']);
+
+        foreach ($db as $item) {
+            if ($this->questionAnswerModels->where(['qc_id' => $item->id, 'm_id' => $user->id])->exists()) {
+                $item->is_answer = 1;
+            } else {
+                $item->is_answer = 0;
+            }
+        }
 
         return $db->items();
     }

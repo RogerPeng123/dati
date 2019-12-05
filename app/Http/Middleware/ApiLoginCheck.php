@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Exceptions\ApiAuthenticationException;
 use App\Exceptions\ApiResponseExceptions;
 use App\Models\Members;
 use Closure;
@@ -37,14 +38,14 @@ class ApiLoginCheck
     {
         $token = $request->header('x-api-key', null);
         if (!$token) {
-            throw new AuthenticationException();
+            throw new ApiAuthenticationException();
         }
 
         if (!Cache::has('API_TOKEN_MEMBER_' . $token)) {
             $this->memberModel = $this->memberModel->where('api_token', $token)->first();
             if (!$this->memberModel) {
                 throw_unless($this->memberModel,
-                    ApiResponseExceptions::class, '登录信息已过期,请重新登录');
+                    ApiAuthenticationException::class);
             }
 
             Cache::put('API_TOKEN_MEMBER_' . $this->memberModel->api_token, $this->memberModel, 60 * 24 * 30);
