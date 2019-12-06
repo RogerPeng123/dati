@@ -13,14 +13,29 @@ Route::group(['namespace' => 'Wechat'], function ($router) {
 
     //登录成功，也就是携带token才能进行的操作
     $router->group(['middleware' => 'api.login.check'], function ($router) {
-        //题期列表
-        $router->get('/cycle/lists', 'CycleController@lists');
 
-        //单期题目列表
-        $router->get('/cycle/question/{id}', 'CycleController@question');
+        //用户相关
+        $router->group(['prefix' => 'member'], function ($router) {
 
-        //提交答卷
-        $router->post('/cycle/question', 'CycleController@quetionSubmit');
+            $router->get('/', 'MemberController@info');
+
+        });
+
+        //题目相关
+        $router->group(['prefix' => 'cycle'], function ($router) {
+            //题期列表
+            $router->get('/lists', 'CycleController@lists');
+
+            //单期题目列表
+            $router->get('/question/{id}', 'CycleController@question');
+
+            //下一组题目列表
+            $router->get('/next/question', 'CycleController@questionNext');
+
+            //提交答卷
+            $router->post('/question', 'CycleController@quetionSubmit');
+        });
+
     });
 
 });

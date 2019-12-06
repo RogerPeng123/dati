@@ -10,6 +10,7 @@ interface CycleService
 
     function cycleQuestion(int $id);
 
-    function cycleSubmit(array $params, string $token);
+    function cycleQuestionNext();
 
+    function cycleSubmit(array $params);
 }

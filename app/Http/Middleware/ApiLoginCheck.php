@@ -48,6 +48,10 @@ class ApiLoginCheck
                     ApiAuthenticationException::class);
             }
 
+            unset($this->memberModel->password);
+            unset($this->memberModel->deleted_at);
+            unset($this->memberModel->created_at);
+            
             Cache::put('API_TOKEN_MEMBER_' . $this->memberModel->api_token, $this->memberModel, 60 * 24 * 30);
         }
 

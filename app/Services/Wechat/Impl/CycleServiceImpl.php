@@ -10,6 +10,7 @@ use App\Models\Members;
 use App\Models\Question;
 use App\Models\QuestionAnswer;
 use App\Models\QuestionOptions;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use App\Services\Wechat\CycleService;
 use Illuminate\Support\Facades\DB;
@@ -52,9 +53,14 @@ class CycleServiceImpl implements CycleService
      */
     private $logger;
 
+    /**
+     * @var Request
+     */
+    private $request;
+
     public function __construct(Cycles $cycleModels, Question $questionModels, LoggerInterface $logger,
                                 QuestionOptions $questionOptionsModels, QuestionAnswer $questionAnswerModels,
-                                Members $memberModel, MemberIntegralLog $integralLog)
+                                Members $memberModel, MemberIntegralLog $integralLog, Request $request)
     {
         $this->cycleModels = $cycleModels;
         $this->questionModels = $questionModels;
@@ -63,6 +69,7 @@ class CycleServiceImpl implements CycleService
         $this->memberModel = $memberModel;
         $this->memberIntegralLog = $integralLog;
         $this->logger = $logger;
+        $this->request = $request;
     }
 
     function cycleLists($user)
@@ -95,17 +102,28 @@ class CycleServiceImpl implements CycleService
         return $db;
     }
 
+    function cycleQuestionNext()
+    {
+        $member = Cache::get('API_TOKEN_MEMBER_' . $this->request->header('x-api-key'));
+
+        $qcArray = $this->questionAnswerModels->where(['m_id' => $member->id])->groupBy('qc_id')->pluck('qc_id');
+
+        $id = $this->cycleModels->whereNotIn('id', $qcArray)->orderBy('id', 'desc')->value('id');
+
+        return $this->cycleQuestion($id);
+    }
+
+
     /**
      *
      * Author: roger peng
      * Time: 2019/11/23 14:08
      * @param array $params
-     * @param string $token
      * @return array
      * @throws ApiResponseExceptions
      * @throws \Throwable
      */
-    function cycleSubmit(array $params, string $token)
+    function cycleSubmit(array $params)
     {
         //解析json数据
         $body = json_decode($params['body'], true);
@@ -150,8 +168,7 @@ class CycleServiceImpl implements CycleService
             'integral' => config('integral.num') * $questionsSuccessNum
         ];
 
-
-        $member = Cache::get('API_TOKEN_MEMBER_' . $token);
+        $member = Cache::get('API_TOKEN_MEMBER_' . $this->request->header('x-api-key'));
 
         DB::beginTransaction();
 
@@ -188,6 +205,9 @@ class CycleServiceImpl implements CycleService
             $this->memberModel->where('id', $member->id)->increment('questions_num');
 
             DB::commit();
+
+            //清理缓存
+            Cache::forget('API_TOKEN_MEMBER_' . $this->request->header('x-api-key'));
         } catch (ApiResponseExceptions $exception) {
             DB::rollBack();
             throw new ApiResponseExceptions($exception->getMessage());

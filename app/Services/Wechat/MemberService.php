@@ -9,4 +9,6 @@ interface MemberService
     function registerMember(array $params);
 
     function memberLogin(array $params);
+
+    function memberInfo();
 }

@@ -49,11 +49,24 @@ class CycleController extends Controller
         return ResponseApi::ApiSuccess('success', $this->cycleService->cycleQuestion($id));
     }
 
+    //TODO 下一组
+    public function questionNext()
+    {
+        return ResponseApi::ApiSuccess('success', $this->cycleService->cycleQuestionNext());
+    }
+
+    /**
+     * 提交答卷
+     * Author: roger peng
+     * Time: 2019/12/6 23:14
+     * @param CycleRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function quetionSubmit(CycleRequest $request)
     {
         $params = $request->only('qc_id', 'body');
 
-        $result = $this->cycleService->cycleSubmit($params, $request->header('x-api-key'));
+        $result = $this->cycleService->cycleSubmit($params);
 
         return ResponseApi::ApiSuccess('success', $result);
     }

@@ -3,20 +3,31 @@
 
 namespace App\Services\Wechat\Impl;
 
+use App\Exceptions\ApiAuthenticationException;
 use App\Exceptions\ApiResponseExceptions;
 use App\Services\Wechat\MemberService;
 use App\Toolkit\ActionToolkit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use App\Models\Members;
 use Illuminate\Support\Facades\Cache;
 
 class MemberServiceImpl implements MemberService
 {
+    /**
+     * @var Members
+     */
     private $memberModel;
 
-    public function __construct(Members $memberModel)
+    /**
+     * @var Request
+     */
+    private $request;
+
+    public function __construct(Members $memberModel, Request $request)
     {
         $this->memberModel = $memberModel;
+        $this->request = $request;
     }
 
     /**
@@ -69,15 +80,39 @@ class MemberServiceImpl implements MemberService
         $this->memberModel->api_token = ActionToolkit::setApiToken($this->memberModel->id);
         $this->memberModel->save();
 
-        Cache::put('API_TOKEN_MEMBER_' . $this->memberModel->api_token, $this->memberModel, 60 * 24 * 30);
-
         unset($this->memberModel->password);
         unset($this->memberModel->deleted_at);
         unset($this->memberModel->created_at);
-        unset($this->memberModel->cover);
+
+        Cache::put('API_TOKEN_MEMBER_' . $this->memberModel->api_token, $this->memberModel, 60 * 24 * 30);
 
         return $this->memberModel;
     }
 
+    /**
+     *
+     * Author: roger peng
+     * Time: 2019/12/6 23:47
+     * @return mixed
+     * @throws \Throwable
+     */
+    function memberInfo()
+    {
+        if (Cache::has('API_TOKEN_MEMBER_' . $this->request->header('x-api-key')))
+            return Cache::get('API_TOKEN_MEMBER_' . $this->request->header('x-api-key'));
+
+        $this->memberModel = $this->memberModel->where('api_token', $this->request->header('x-api-key'))->first();
+
+        unset($this->memberModel->password);
+        unset($this->memberModel->deleted_at);
+        unset($this->memberModel->created_at);
+
+        throw_unless($this->memberModel,
+            ApiAuthenticationException::class, '登录信息失效,请重新登录');
+
+        Cache::put('API_TOKEN_MEMBER_' . $this->request->header('x-api-key'), $this->memberModel, 60 * 24 * 30);
+
+        return $this->memberModel;
+    }
 
 }
