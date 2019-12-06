@@ -25,6 +25,7 @@ class CycleController extends Controller
      * 获取周期列表
      * Author: roger peng
      * Time: 2019/11/21 23:03
+     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function lists(Request $request)

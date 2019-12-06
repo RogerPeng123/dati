@@ -11,6 +11,7 @@ use App\Models\QuestionAnswer;
 use App\Models\QuestionOptions;
 use Illuminate\Support\Facades\Cache;
 use App\Services\Wechat\CycleService;
+use Psr\Log\LoggerInterface;
 
 class CycleServiceImpl implements CycleService
 {
@@ -34,13 +35,16 @@ class CycleServiceImpl implements CycleService
      */
     private $questionAnswerModels;
 
-    public function __construct(Cycles $cycleModels, Question $questionModels,
+    private $logger;
+
+    public function __construct(Cycles $cycleModels, Question $questionModels, LoggerInterface $logger,
                                 QuestionOptions $questionOptionsModels, QuestionAnswer $questionAnswerModels)
     {
         $this->cycleModels = $cycleModels;
         $this->questionModels = $questionModels;
         $this->questionOptionsModels = $questionOptionsModels;
         $this->questionAnswerModels = $questionAnswerModels;
+        $this->logger = $logger;
     }
 
     function cycleLists($user)
@@ -131,6 +135,8 @@ class CycleServiceImpl implements CycleService
         $this->questionAnswerModels->correct = $result['correct'];
 
         throw_unless($this->questionAnswerModels->save(), ApiResponseExceptions::class, '答题失败');
+
+        $this->logger->info('答题反馈', $result);
 
         return $result;
     }
