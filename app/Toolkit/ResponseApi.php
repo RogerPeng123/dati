@@ -13,11 +13,8 @@ final class ResponseApi
     const PARAMETER_ERROR = 203; //请求参数错误
     const API_ROUTER_NOTHINGNESS = 404; //请求路由不存在
     const API_METHOD_ERROR = 405; //请求路由方式不正确
-    const API_SUPER_AUTH_LACK = 406; //缺少超管权限
-    const API_SUPER_OR_MANAGER_LACK = 407; //缺少超管或者门店创始人权限
 
     const NOT_LOGIN_ERROR = 207; //未登陆认证
-    const JSON_NOT_ERROR = 208; // json解析失败
 
     /**
      * Api正确回传
