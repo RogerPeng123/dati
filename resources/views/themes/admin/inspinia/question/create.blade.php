@@ -93,7 +93,16 @@
                                                 <input type="radio" value="2" name="type" class="radio-class">
                                                 <ins class="iCheck-helper"></ins>
                                             </div>
-                                            <i></i> 选择题
+                                            <i></i> 单择题
+                                        </label>
+                                    </div>
+                                    <div class="i-checks">
+                                        <label class="">
+                                            <div class="iradio_square-green" style="position: relative;">
+                                                <input type="radio" value="3" name="type" class="radio-class">
+                                                <ins class="iCheck-helper"></ins>
+                                            </div>
+                                            <i></i> 多选题
                                         </label>
                                     </div>
                                     @if ($errors->has('type'))

@@ -11,6 +11,7 @@ class Question extends Model
 
     const TYPE_JUDGE = 1;
     const TYPE_CHOOSE = 2;
+    const TYPE_MULTI = 3;
 
     protected $table = 'question';
 

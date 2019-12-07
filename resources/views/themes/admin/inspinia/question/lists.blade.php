@@ -69,6 +69,11 @@
                                                                target="_blank">
                                                                 {{ $item->title }}
                                                             </a>
+                                                        @elseif($item->type == \App\Models\Question::TYPE_MULTI)
+                                                            <a href="{{ route('options.index',['q_id'=>$item->id]) }}"
+                                                               target="_blank">
+                                                                {{ $item->title }}
+                                                            </a>
                                                         @else
                                                             {{ $item->title }}
                                                         @endif
@@ -76,7 +81,9 @@
                                                     @if($item->type == \App\Models\Question::TYPE_JUDGE)
                                                         <td>判断题</td>
                                                     @elseif($item->type == \App\Models\Question::TYPE_CHOOSE)
-                                                        <td>选择题</td>
+                                                        <td>单择题</td>
+                                                    @elseif($item->type == \App\Models\Question::TYPE_MULTI)
+                                                        <td>多选题</td>
                                                     @else
                                                         <td>未知类型</td>
                                                     @endif

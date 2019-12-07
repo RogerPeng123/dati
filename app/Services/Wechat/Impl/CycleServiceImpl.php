@@ -141,24 +141,39 @@ class CycleServiceImpl implements CycleService
 
         foreach ($body as $item) {
             $questions = $this->questionModels->find($item['q_id']);
-            if ($questions->type == $this->questionModels::TYPE_JUDGE) {
-                if ($questions->judge_success == $item['answer']) {
-                    ++$questionsSuccessNum;
-                    $questionsSuccessArray[]['q_o_id'] = $item['q_id'];
-                }
-            } elseif ($questions->type == $this->questionModels::TYPE_CHOOSE) {
+            switch ($questions->type) {
+                case $this->questionModels::TYPE_JUDGE:
+                    if ($questions->judge_success == $item['answer']) {
+                        ++$questionsSuccessNum;
+                        $questionsSuccessArray[]['q_o_id'] = $item['q_id'];
+                    }
+                    break;
+                case $this->questionModels::TYPE_CHOOSE:
+                    $questionOption = $this->questionOptionsModels->where([
+                        'q_id' => $item['q_id'], 'is_success' => $this->questionOptionsModels::SUCCESS_OPTIONS
+                    ])->first(['id']);
 
-                $questionOption = $this->questionOptionsModels->where([
-                    'q_id' => $item['q_id'], 'is_success' => $this->questionOptionsModels::SUCCESS_OPTIONS
-                ])->first(['id']);
+                    if ($item['answer'] == $questionOption->id) {
+                        ++$questionsSuccessNum;
+                        $questionsSuccessArray[]['q_o_id'] = $item['q_id'];
+                    }
+                    break;
+                case $this->questionModels::TYPE_MULTI:
+                    $questionOption = $this->questionOptionsModels->where([
+                        'q_id' => $item['q_id'], 'is_success' => $this->questionOptionsModels::SUCCESS_OPTIONS])
+                        ->groupBy('id')->pluck('id');
 
-                if ($item['answer'] == $questionOption->id) {
-                    ++$questionsSuccessNum;
-                    $questionsSuccessArray[]['q_o_id'] = $item['q_id'];
-                }
-            } else {
-                throw new ApiResponseExceptions('错误题目参数: ' . $item['q_id']);
+                    //判断两个数组的交集，如果为空数组，那么就证明相同
+                    $questionDiff = array_diff($questionOption->toArray(), $item['answer']);
+                    if (empty($questionDiff)) {
+                        ++$questionsSuccessNum;
+                        $questionsSuccessArray[]['q_o_id'] = $item['q_id'];
+                    }
+                    break;
+                default:
+                    throw new ApiResponseExceptions('错误题目参数: ' . $item['q_id']);
             }
+
         }
 
         $result = [

@@ -49,7 +49,12 @@ class CycleController extends Controller
         return ResponseApi::ApiSuccess('success', $this->cycleService->cycleQuestion($id));
     }
 
-    //TODO 下一组
+    /**
+     * 下一组答题
+     * Author: roger peng
+     * Time: 2019/12/7 09:15
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function questionNext()
     {
         return ResponseApi::ApiSuccess('success', $this->cycleService->cycleQuestionNext());
