@@ -110,7 +110,7 @@ class CycleServiceImpl implements CycleService
 
         $id = $this->cycleModels->whereNotIn('id', $qcArray)->orderBy('id', 'desc')->value('id');
 
-        return $this->cycleQuestion($id);
+        return ['qc_id' => $id, 'questions' => $this->cycleQuestion($id)];
     }
 
 
