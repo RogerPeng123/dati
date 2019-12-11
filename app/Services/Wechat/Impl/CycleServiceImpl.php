@@ -75,6 +75,7 @@ class CycleServiceImpl implements CycleService
     function cycleLists($user)
     {
         $db = $this->cycleModels
+            ->where('status', $this->cycleModels::SHOW_STATUS)
             ->orderBy('years', 'desc')
             ->orderBy('months', 'desc')
             ->orderBy('cycles', 'desc')
