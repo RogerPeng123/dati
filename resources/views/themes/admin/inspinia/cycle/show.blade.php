@@ -60,13 +60,13 @@
                             </div>
                             <div class="hr-line-dashed"></div>
 
-{{--                            <div class="form-group">--}}
-{{--                                <label class="col-sm-2 control-label">{{trans('cycle.status')}}</label>--}}
-{{--                                <div class="col-sm-10">--}}
-{{--                                    <p class="form-control-static">{{$view->status ? '开放' : '不开放'}}</p>--}}
-{{--                                </div>--}}
-{{--                            </div>--}}
-{{--                            <div class="hr-line-dashed"></div>--}}
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">{{trans('cycle.status')}}</label>
+                                <div class="col-sm-10">
+                                    <p class="form-control-static">{{$view->status ? '开放' : '不开放'}}</p>
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
 
                             <div class="form-group">
                                 <label class="col-sm-2 control-label">{{trans('cycle.created_at')}}</label>
