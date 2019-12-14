@@ -109,7 +109,8 @@ class CycleServiceImpl implements CycleService
 
         $qcArray = $this->questionAnswerModels->where(['m_id' => $member->id])->groupBy('qc_id')->pluck('qc_id');
 
-        $id = $this->cycleModels->whereNotIn('id', $qcArray)->orderBy('id', 'desc')->value('id');
+        $id = $this->cycleModels->whereNotIn('id', $qcArray)->where('status', $this->cycleModels::SHOW_STATUS)
+            ->orderBy('id', 'desc')->value('id');
 
         return ['qc_id' => $id, 'questions' => $this->cycleQuestion($id)];
     }
