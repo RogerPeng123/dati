@@ -9,7 +9,7 @@
         </div>
         <div class="col-lg-2">
             <div class="title-action">
-                @if(haspermission('usercontroller.create'))
+                @if(haspermission('questioncontroller.create'))
                     <a href="{{ route('question.create',['qc_id'=>$cycle->id]) }}" class="btn btn-info">
                         <i class="fa fa-plus"></i> {!! trans('common.create').trans('question.slug') !!}
                     </a>
