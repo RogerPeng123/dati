@@ -112,8 +112,22 @@
                             </div>
 
                             <div class="hr-line-dashed"></div>
+                            <div class="form-group{{ $errors->has('parsing') ? ' has-error' : '' }}">
+                                <label class="col-sm-2 control-label">答案解析</label>
+                                <div class="col-sm-10">
+                                    <div id="editor">
+
+                                    </div>
+                                    @if ($errors->has('parsing'))
+                                        <span class="help-block m-b-none text-danger">{{ $errors->first('parsing') }}</span>
+                                    @endif
+                                </div>
+                            </div>
+
+                            <div class="hr-line-dashed"></div>
 
                             <input type="hidden" name="qc_id" value="{{ $qc_id }}">
+                            <input type="hidden" name="parsing" id="parsing" value="">
 
 
                             <div class="form-group">
@@ -121,7 +135,7 @@
                                     <a class="btn btn-white"
                                        href="{{ route('question.index',['qc_id'=>$qc_id]) }}">{!!trans('common.cancel')!!}</a>
                                     @if(haspermission('questioncontroller.store'))
-                                        <button class="btn btn-primary"
+                                        <button class="btn btn-primary" id="questionSub"
                                                 type="submit">{!! trans('common.create') !!}</button>
                                     @endif
                                 </div>
@@ -137,6 +151,25 @@
 @section('js')
     <script type="text/javascript" src="{{asset(getThemeAssets('iCheck/icheck.min.js', true))}}"></script>
     <script type="text/javascript" src="{{asset(getThemeAssets('js/check.js'))}}"></script>
+
+    <!-- 注意， 只需要引用 JS，无需引用任何 CSS ！！！-->
+    <script type="text/javascript" src="https://unpkg.com/wangeditor@3.1.1/release/wangEditor.min.js"></script>
+    <script type="text/javascript">
+        var E = window.wangEditor;
+        var editor = new E('#editor');
+        // 或者 var editor = new E( document.getElementById('editor') )
+
+
+        editor.customConfig.showLinkImg = false; // 隐藏“网络图片”tab
+        // editor.customConfig.uploadImgServer = '/upload';  // 上传图片到服务器
+        editor.customConfig.uploadImgShowBase64 = true;   // 使用 base64 保存图片
+        editor.create();
+
+        $('#questionSub').on('click', function () {
+            $('#parsing').val(editor.txt.html());
+        });
+    </script>
+
     <script>
         $(document).ready(function () {
 
@@ -153,6 +186,8 @@
                 checkboxClass: 'icheckbox_square-green',
                 radioClass: 'iradio_square-green',
             });
+
+
         });
     </script>
 @endsection

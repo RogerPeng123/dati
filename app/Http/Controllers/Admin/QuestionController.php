@@ -41,8 +41,10 @@ class QuestionController extends Controller
 
     /**
      * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
+     * Author: roger peng
+     * Time: 2019/12/26 09:58
+     * @param Request $request
+     * @return \BladeView|bool|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function create(Request $request)
     {
@@ -53,9 +55,10 @@ class QuestionController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
+     * Author: roger peng
+     * Time: 2019/12/26 10:09
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
     {
@@ -74,6 +77,7 @@ class QuestionController extends Controller
         $this->questionModel->title = $merge['title'];
         $this->questionModel->type = $merge['type'];
         $this->questionModel->qc_id = $merge['qc_id'];
+        $this->questionModel->parsing = $merge['parsing'];
 
         if ($this->questionModel->save()) {
             flash('新增成功')->success();
@@ -101,9 +105,11 @@ class QuestionController extends Controller
 
     /**
      * Show the form for editing the specified resource.
-     *
-     * @param int $id
-     * @return \Illuminate\Http\Response
+     * Author: roger peng
+     * Time: 2019/12/26 10:10
+     * @param $id
+     * @param Request $request
+     * @return \BladeView|bool|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function edit($id, Request $request)
     {
@@ -114,10 +120,11 @@ class QuestionController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param int $id
-     * @return \Illuminate\Http\Response
+     * Author: roger peng
+     * Time: 2019/12/26 10:09
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request, $id)
     {
@@ -131,6 +138,8 @@ class QuestionController extends Controller
         $this->questionModel = $this->questionModel->find(decodeId($id));
 
         $this->questionModel->title = $request->get('title');
+        $this->questionModel->parsing = $request->get('parsing');
+
         if ($this->questionModel->type == $this->questionModel::TYPE_JUDGE) {
             $this->questionModel->judge_success = $request->get('judge_success');
         }
@@ -139,12 +148,13 @@ class QuestionController extends Controller
 
         return redirect()->route('question.index', ['qc_id' => $request->get('qc_id')]);
     }
-
+    
     /**
      * Remove the specified resource from storage.
-     *
-     * @param int $id
-     * @return \Illuminate\Http\Response
+     * Author: roger peng
+     * Time: 2019/12/26 10:10
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($id)
     {

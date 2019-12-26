@@ -32,17 +32,6 @@
     <div class="row wrapper border-bottom white-bg page-heading">
         <div class="col-lg-10">
             <h2>{!! trans('question.title') !!}</h2>
-            {{--            <ol class="breadcrumb">--}}
-            {{--                <li>--}}
-            {{--                    <a href="javasctipt:;">{!! trans('home.title') !!}</a>--}}
-            {{--                </li>--}}
-            {{--                <li>--}}
-            {{--                    <a href="{{route('cycle.index')}}">{!! trans('cycle.title') !!}</a>--}}
-            {{--                </li>--}}
-            {{--                <li class="active">--}}
-            {{--                    <strong>{!!trans('common.edit').trans('cycle.slug')!!}</strong>--}}
-            {{--                </li>--}}
-            {{--            </ol>--}}
         </div>
         <div class="col-lg-2">
             <div class="title-action">
@@ -124,12 +113,28 @@
                                 <div class="hr-line-dashed"></div>
                             @endif
 
+                            <div class="form-group{{ $errors->has('parsing') ? ' has-error' : '' }}">
+                                <label class="col-sm-2 control-label">答案解析</label>
+                                <div class="col-sm-10">
+                                    <div id="editor">
+                                        {!! $view->parsing !!}
+                                    </div>
+                                    @if ($errors->has('parsing'))
+                                        <span class="help-block m-b-none text-danger">{{ $errors->first('parsing') }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+
+                            <input type="hidden" value="{{ $view->parsing }}" name="parsing" id="parsing">
+
+
                             <div class="form-group">
                                 <div class="col-sm-4 col-sm-offset-2">
                                     <a class="btn btn-white"
                                        href="{{ route('question.index',['qc_id'=>$qc_id]) }}">{!! trans('common.cancel') !!}</a>
                                     @if(haspermission('questioncontroller.update'))
-                                        <button class="btn btn-primary" type="submit">
+                                        <button class="btn btn-primary" type="submit" id="editSub">
                                             {!! trans('common.edit') !!}
                                         </button>
                                     @endif
@@ -145,6 +150,23 @@
 @section('js')
     <script type="text/javascript" src="{{asset(getThemeAssets('iCheck/icheck.min.js', true))}}"></script>
     <script type="text/javascript" src="{{asset(getThemeAssets('js/check.js'))}}"></script>
+    <!-- 注意， 只需要引用 JS，无需引用任何 CSS ！！！-->
+    <script type="text/javascript" src="https://unpkg.com/wangeditor@3.1.1/release/wangEditor.min.js"></script>
+    <script type="text/javascript">
+        var E = window.wangEditor;
+        var editor = new E('#editor');
+        // 或者 var editor = new E( document.getElementById('editor') )
+
+        editor.customConfig.showLinkImg = false; // 隐藏“网络图片”tab
+        // editor.customConfig.uploadImgServer = '/upload';  // 上传图片到服务器
+        editor.customConfig.uploadImgShowBase64 = true;   // 使用 base64 保存图片
+        editor.create();
+
+        $('#editSub').on('click', function () {
+            $('#parsing').val(editor.txt.html());
+        });
+
+    </script>
     <script>
         $(document).ready(function () {
 

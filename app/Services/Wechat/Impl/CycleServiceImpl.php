@@ -94,7 +94,7 @@ class CycleServiceImpl implements CycleService
 
     function cycleQuestion(int $id)
     {
-        $db = $this->questionModels->where('qc_id', $id)->get(['id', 'title', 'type', 'judge_success']);
+        $db = $this->questionModels->where('qc_id', $id)->get(['id', 'title', 'type', 'judge_success', 'parsing']);
 
         foreach ($db as &$item) {
             $item['question_options'] = $item->questionOptions;
