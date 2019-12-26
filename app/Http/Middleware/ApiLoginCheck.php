@@ -37,6 +37,7 @@ class ApiLoginCheck
     public function handle($request, Closure $next)
     {
         $token = $request->header('x-api-key', null);
+        Cache::forget('API_TOKEN_MEMBER_' . $token);
         if (!$token) {
             throw new ApiAuthenticationException();
         }
@@ -51,7 +52,9 @@ class ApiLoginCheck
             unset($this->memberModel->password);
             unset($this->memberModel->deleted_at);
             unset($this->memberModel->created_at);
-            
+
+            $this->memberModel->cover = env('APP_URL') . $this->memberModel->cover;
+
             Cache::put('API_TOKEN_MEMBER_' . $this->memberModel->api_token, $this->memberModel, 60 * 24 * 30);
         }
 

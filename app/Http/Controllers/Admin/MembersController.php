@@ -123,4 +123,11 @@ class MembersController extends Controller
 //    {
 //        //
 //    }
+
+    public function logs($id)
+    {
+
+        dd($id);
+
+    }
 }
