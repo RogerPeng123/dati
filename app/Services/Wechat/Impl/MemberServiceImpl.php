@@ -84,6 +84,8 @@ class MemberServiceImpl implements MemberService
         unset($this->memberModel->deleted_at);
         unset($this->memberModel->created_at);
 
+        $this->memberModel->cover = env('APP_URL') . $this->memberModel->cover;
+
         Cache::put('API_TOKEN_MEMBER_' . $this->memberModel->api_token, $this->memberModel, 60 * 24 * 30);
 
         return $this->memberModel;
@@ -109,6 +111,8 @@ class MemberServiceImpl implements MemberService
 
         throw_unless($this->memberModel,
             ApiAuthenticationException::class, '登录信息失效,请重新登录');
+
+        $this->memberModel->cover = env('APP_URL') . $this->memberModel->cover;
 
         Cache::put('API_TOKEN_MEMBER_' . $this->request->header('x-api-key'), $this->memberModel, 60 * 24 * 30);
 

@@ -103,6 +103,13 @@ class CycleServiceImpl implements CycleService
         return $db;
     }
 
+    /**
+     * 下一题
+     * Author: roger peng
+     * Time: 2019/12/26 09:00
+     * @return array
+     * @throws ApiResponseExceptions
+     */
     function cycleQuestionNext()
     {
         $member = Cache::get('API_TOKEN_MEMBER_' . $this->request->header('x-api-key'));
@@ -111,6 +118,10 @@ class CycleServiceImpl implements CycleService
 
         $id = $this->cycleModels->whereNotIn('id', $qcArray)->where('status', $this->cycleModels::SHOW_STATUS)
             ->orderBy('id', 'desc')->value('id');
+
+        if (!$id) {
+            throw new ApiResponseExceptions('没有下一期,请期待更多期题上线...');
+        }
 
         return ['qc_id' => $id, 'questions' => $this->cycleQuestion($id)];
     }
