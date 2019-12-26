@@ -68,8 +68,8 @@ class CycleController extends Controller
             'title' => 'required|max:20',
             'status' => 'required|max:1',
         ], [
-            'name.required' => '不允许为空',
-            'name.max' => '超出标题最大限制',
+            'title.required' => '不允许为空',
+            'title.max' => '超出标题最大限制',
             'status.required' => '请填写是否显示参数',
             'status.max' => '是否显示格式不正确',
         ]);
@@ -83,7 +83,7 @@ class CycleController extends Controller
 
         $cycle = $cycle ? ($cycle['cycles'] + 1) : 1;
 
-        $this->cycleModel->title = "{$year}年{$months}月第{$cycle}期答题";
+        $this->cycleModel->title = $request->get('title');
         $this->cycleModel->num = 0;
         $this->cycleModel->years = $year;
         $this->cycleModel->months = $months;
@@ -135,8 +135,11 @@ class CycleController extends Controller
     public function update(Request $request, $id)
     {
         $this->validate($request, [
+            'title' => 'required|max:20',
             'status' => 'required|max:1',
         ], [
+            'title.required' => '不允许为空',
+            'title.max' => '超出标题最大限制',
             'status.required' => '请填写是否显示参数',
             'status.max' => '是否显示格式不正确',
         ]);
@@ -144,6 +147,7 @@ class CycleController extends Controller
         $this->cycleModel = $this->cycleModel->find(decodeId($id));
 
         $this->cycleModel->status = $request->get('status');
+        $this->cycleModel->title = $request->get('title');
 
         $this->cycleModel->save() ? flash('更新成功')->success() : flash('更新失败')->error();
 

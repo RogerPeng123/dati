@@ -77,7 +77,7 @@
                             <div class="form-group{{ $errors->has('title') ? ' has-error' : '' }}">
                                 <label class="col-sm-2 control-label">{{trans('cycle.titleName')}}</label>
                                 <div class="col-sm-10">
-                                    <input type="text" class="form-control" name="title" readonly unselectable="on"
+                                    <input type="text" class="form-control" name="title"
                                            value="{{ $year }}年{{ $months }}月第{{ $cycle }}期答题">
                                     @if ($errors->has('title'))
                                         <span class="help-block m-b-none text-danger">{{ $errors->first('title') }}</span>
