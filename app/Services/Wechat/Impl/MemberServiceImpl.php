@@ -5,6 +5,8 @@ namespace App\Services\Wechat\Impl;
 
 use App\Exceptions\ApiAuthenticationException;
 use App\Exceptions\ApiResponseExceptions;
+use App\Models\Cycles;
+use App\Models\QuestionAnswer;
 use App\Services\Wechat\MemberService;
 use App\Toolkit\ActionToolkit;
 use Illuminate\Http\Request;
@@ -19,15 +21,22 @@ class MemberServiceImpl implements MemberService
      */
     private $memberModel;
 
+    private $cycleModel;
+
+    private $questionAnswerModel;
+
     /**
      * @var Request
      */
     private $request;
 
-    public function __construct(Members $memberModel, Request $request)
+    public function __construct(Members $memberModel, Request $request, Cycles $cycles,
+                                QuestionAnswer $questionAnswerModel)
     {
         $this->memberModel = $memberModel;
         $this->request = $request;
+        $this->cycleModel = $cycles;
+        $this->questionAnswerModel = $questionAnswerModel;
     }
 
     /**
@@ -118,5 +127,29 @@ class MemberServiceImpl implements MemberService
 
         return $this->memberModel;
     }
+
+    function getMemberAnswerLog()
+    {
+        $member = Cache::get('API_TOKEN_MEMBER_' . $this->request->header('x-api-key'));
+
+        $data = $this->questionAnswerModel
+            ->leftJoin($this->cycleModel->getTable(),
+                $this->cycleModel->getTable() . '.' . $this->cycleModel->getKeyName(),
+                '=', $this->questionAnswerModel->getTable() . '.qc_id')
+            ->where($this->questionAnswerModel->getTable() . '.m_id', $member->id)
+            ->orderBy($this->questionAnswerModel->getTable() . '.created_at', 'desc')
+            ->paginate(10, [
+                $this->questionAnswerModel->getTable() . '.id',
+                $this->questionAnswerModel->getTable() . '.success_questions',
+                $this->questionAnswerModel->getTable() . '.errors_questions',
+                $this->questionAnswerModel->getTable() . '.correct',
+                $this->questionAnswerModel->getTable() . '.integral',
+                $this->questionAnswerModel->getTable() . '.created_at',
+                $this->cycleModel->getTable() . '.title'
+            ]);
+
+        return $data->items();
+    }
+
 
 }

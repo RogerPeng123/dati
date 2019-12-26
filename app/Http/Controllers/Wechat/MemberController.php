@@ -19,4 +19,10 @@ class MemberController extends Controller
     {
         return ResponseApi::ApiSuccess('success', $this->memberService->memberInfo());
     }
+
+    public function answerLists()
+    {
+        return ResponseApi::ApiSuccess('success', $this->memberService->getMemberAnswerLog());
+
+    }
 }

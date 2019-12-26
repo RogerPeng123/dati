@@ -11,4 +11,6 @@ interface MemberService
     function memberLogin(array $params);
 
     function memberInfo();
+
+    function getMemberAnswerLog();
 }

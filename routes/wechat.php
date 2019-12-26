@@ -16,9 +16,9 @@ Route::group(['namespace' => 'Wechat'], function ($router) {
 
         //用户相关
         $router->group(['prefix' => 'member'], function ($router) {
-
             $router->get('/', 'MemberController@info');
 
+            $router->get('/answer/logs', 'MemberController@answerLists');
         });
 
         //题目相关
