@@ -13,5 +13,9 @@ class QuestionAnswer extends Model
 
     protected $primaryKey = 'id';
 
+    public function questionCycle()
+    {
+        return $this->hasOne(Cycles::class, 'id', 'qc_id');
+    }
 
 }

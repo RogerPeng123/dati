@@ -10,8 +10,11 @@
                 <li>
                     <a href="javascript:void(0);">会员管理</a>
                 </li>
+                <li>
+                    <a href="{{ route('members.index') }}">会员列表</a>
+                </li>
                 <li class="active">
-                    <strong>会员列表</strong>
+                    <strong>答题记录</strong>
                 </li>
             </ol>
         </div>
@@ -22,7 +25,7 @@
             <div class="col-lg-12">
                 <div class="ibox">
                     <div class="ibox-title">
-                        <h5>会员管理</h5>
+                        <h5>答题记录</h5>
                         <div class="ibox-tools">
                             <a class="collapse-link">
                                 <i class="fa fa-chevron-up"></i>
@@ -38,22 +41,7 @@
 
                         <div id="dataTableBuilder_wrapper"
                              class="dataTables_wrapper form-inline dt-bootstrap no-footer">
-                            <div class="row">
-                                <div class="col-sm-6">
-                                    <form action="">
-                                        <div class="dataTables_length" id="dataTableBuilder_length">
-                                            <label>
-                                                搜索:
-                                                <input type="search" class="form-control input-sm" name="search"
-                                                       placeholder="手机号码" aria-controls="dataTableBuilder"
-                                                       value="{{ $search or '' }}">
-                                            </label>
 
-                                            <button class="btn btn-sm btn-primary">确定</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
                             <div class="row">
                                 <div class="col-sm-12">
                                     <table class="table table-striped table-bordered table-hover dataTable no-footer"
@@ -61,13 +49,13 @@
                                         <thead>
                                         <tr role="row">
                                             <th>序号</th>
-                                            <th>用户昵称</th>
-                                            <th>手机号码</th>
-                                            <th>用户积分</th>
-                                            <th>答题次数</th>
-                                            <th>注册时间</th>
+                                            <th>答题标题</th>
+                                            <th>答对数量</th>
+                                            <th>总共数量</th>
+                                            <th>正确率</th>
+                                            <th>答题时间</th>
                                             <th>修改时间</th>
-                                            <th>操作</th>
+{{--                                            <th>操作</th>--}}
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -76,22 +64,22 @@
                                             @foreach($data as $item)
                                                 <tr role="row" class="odd">
                                                     <td>{{ $item->id }}</td>
-                                                    <td>{{ $item->nickname }}</td>
-                                                    <td>{{ $item->username }}</td>
-                                                    <td>{{ $item->integral }}</td>
-                                                    <td>{{ $item->questions_num }}</td>
+                                                    <td>{{ $item->questionCycle->title }}</td>
+                                                    <td>{{ $item->success_questions }}</td>
+                                                    <td>{{ $item->errors_questions + $item->success_questions }}</td>
+                                                    <td>{{ $item->correct }}%</td>
                                                     <td>{{ $item->created_at }}</td>
                                                     <td>{{ $item->updated_at }}</td>
-                                                    <td>
-                                                        <a href="{{ route('members.edit',['id'=>encodeId($item->id)]) }}"
-                                                           class="btn btn-xs btn-outline btn-warning tooltips">
-                                                            <i class="fa fa-edit"></i>
-                                                        </a>
-                                                        <a href="{{ route('members.logs',['id'=>encodeId($item->id)]) }}"
-                                                           class="btn btn-xs btn-outline btn-primary tooltips">
-                                                            答题记录
-                                                        </a>
-                                                    </td>
+{{--                                                    <td>--}}
+{{--                                                        <a href="{{ route('members.edit',['id'=>encodeId($item->id)]) }}"--}}
+{{--                                                           class="btn btn-xs btn-outline btn-warning tooltips">--}}
+{{--                                                            <i class="fa fa-edit"></i>--}}
+{{--                                                        </a>--}}
+{{--                                                        <a href="{{ route('members.logs',['id'=>encodeId($item->id)]) }}"--}}
+{{--                                                           class="btn btn-xs btn-outline btn-primary tooltips">--}}
+{{--                                                            答题记录--}}
+{{--                                                        </a>--}}
+{{--                                                    </td>--}}
                                                 </tr>
                                             @endforeach
                                         @else
@@ -110,7 +98,7 @@
                                 <div class="col-sm-12">
                                     <div class="dataTables_paginate paging_simple_numbers"
                                          id="dataTableBuilder_paginate">
-                                        {!! $data->appends(['search'=>$search])->links() !!}
+                                        {!! $data->links() !!}
                                     </div>
                                 </div>
                             </div>
@@ -123,6 +111,4 @@
     </div>
 @endsection
 @section('js')
-    <script src="{{asset(getThemeAssets('dataTables/datatables.min.js', true))}}"></script>
-    <script src="{{asset(getThemeAssets('layer/layer.js', true))}}"></script>
 @endsection

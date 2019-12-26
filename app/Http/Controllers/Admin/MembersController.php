@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Members;
+use App\Models\QuestionAnswer;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -10,9 +11,12 @@ class MembersController extends Controller
 {
     private $memebrModel;
 
-    public function __construct(Members $memebrModel)
+    private $questionAnswerModel;
+
+    public function __construct(Members $memebrModel, QuestionAnswer $questionAnswerModel)
     {
         $this->memebrModel = $memebrModel;
+        $this->questionAnswerModel = $questionAnswerModel;
     }
 
     /**
@@ -126,8 +130,10 @@ class MembersController extends Controller
 
     public function logs($id)
     {
+        $db = $this->questionAnswerModel->where('m_id', decodeId($id))
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
 
-        dd($id);
-
+        return view(getThemeView('members.logs'), ['data' => $db]);
     }
 }

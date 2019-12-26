@@ -207,6 +207,7 @@ class CycleServiceImpl implements CycleService
             $this->questionAnswerModels->success_questions = $result['successQuestions'];
             $this->questionAnswerModels->errors_questions = $result['errorsQuestions'];
             $this->questionAnswerModels->correct = $result['correct'];
+            $this->questionAnswerModels->integral = $result['integral'];
 
             if (!$this->questionAnswerModels->save())
                 throw new ApiResponseExceptions('答题失败');
