@@ -44,6 +44,9 @@ Route::group([], function ($router) {
 
             //答案管理
             $router->resource('options', 'QuestionOptionsController');
+
+            //会员管理
+            $router->resource('members', 'MembersController');
         });
 
     });
