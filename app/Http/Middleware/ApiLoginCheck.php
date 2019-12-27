@@ -70,23 +70,23 @@ class ApiLoginCheck
             Cache::put('API_TOKEN_MEMBER_' . $this->memberModel->api_token, $this->memberModel, 60 * 24 * 30);
         }
 
-        $members = Cache::get('API_TOKEN_MEMBER_' . $token);
-
-        //检查当前用户是否已经领取登录积分
-        $checkState = $this->intrgralLog->where([
-            'm_id' => $members->id, 'type' => $this->intrgralLog::TYPE_LOGIN
-        ])->where('created_at', Carbon::today())->exists();
-
-        if (!$checkState) {
-            //添加积分记录
-            $this->intrgralLog->create([
-                'm_id' => $members->id,
-                'type' => $this->intrgralLog::TYPE_LOGIN,
-                'num' => config('integral.login.today_count_num')
-            ]);
-
-            $this->memberModel->increment('integral', config('integral.login.today_count_num'));
-        }
+//        $members = Cache::get('API_TOKEN_MEMBER_' . $token);
+//
+//        //检查当前用户是否已经领取登录积分
+//        $checkState = $this->intrgralLog->where([
+//            'm_id' => $members->id, 'type' => $this->intrgralLog::TYPE_LOGIN
+//        ])->where('created_at', Carbon::today())->exists();
+//
+//        if (!$checkState) {
+//            //添加积分记录
+//            $this->intrgralLog->create([
+//                'm_id' => $members->id,
+//                'type' => $this->intrgralLog::TYPE_LOGIN,
+//                'num' => config('integral.login.today_count_num')
+//            ]);
+//
+//            $this->memberModel->where('id', $members->id)->increment('integral', config('integral.login.today_count_num'));
+//        }
 
         return $next($request);
     }
