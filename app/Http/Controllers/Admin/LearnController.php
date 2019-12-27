@@ -115,12 +115,13 @@ class LearnController extends Controller
     {
         $this->validate($request, [
             'title' => 'required|max:100',
-            'abstract' => 'required',
+            'abstract' => 'required|max:50',
             'content' => 'required'
         ], [
             'title.required' => '知识点标题不允许为空',
             'title.max' => '知识点标题超出最大限制',
             'abstract.required' => '摘要不允许为空',
+            'abstract.max' => '摘要长度超出最大限制s',
             'content.required' => '知识点内容不允许为空',
         ]);
 
@@ -138,7 +139,7 @@ class LearnController extends Controller
 
         return redirect()->route('learn.index');
     }
-    
+
     /**
      * Remove the specified resource from storage.
      * Author: roger peng
