@@ -18,6 +18,9 @@ Route::group(['namespace' => 'Wechat'], function ($router) {
         $router->group(['prefix' => 'member'], function ($router) {
             $router->get('/', 'MemberController@info');
             $router->get('/answer/logs', 'MemberController@answerLists');
+
+            //积分排行榜
+            $router->get('/integral/rank', 'MemberController@rankIntegral');
         });
 
         //题目相关

@@ -25,4 +25,9 @@ class MemberController extends Controller
         return ResponseApi::ApiSuccess('success', $this->memberService->getMemberAnswerLog());
 
     }
+
+    public function rankIntegral()
+    {
+        return ResponseApi::ApiSuccess('success', $this->memberService->getIntegralRank());
+    }
 }

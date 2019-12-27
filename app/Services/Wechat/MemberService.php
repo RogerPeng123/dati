@@ -13,4 +13,6 @@ interface MemberService
     function memberInfo();
 
     function getMemberAnswerLog();
+
+    function getIntegralRank();
 }

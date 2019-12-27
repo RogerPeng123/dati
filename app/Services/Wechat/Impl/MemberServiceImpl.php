@@ -9,6 +9,7 @@ use App\Models\Cycles;
 use App\Models\QuestionAnswer;
 use App\Services\Wechat\MemberService;
 use App\Toolkit\ActionToolkit;
+use App\Toolkit\MemberToolkit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use App\Models\Members;
@@ -21,8 +22,14 @@ class MemberServiceImpl implements MemberService
      */
     private $memberModel;
 
+    /**
+     * @var Cycles
+     */
     private $cycleModel;
 
+    /**
+     * @var QuestionAnswer
+     */
     private $questionAnswerModel;
 
     /**
@@ -149,6 +156,21 @@ class MemberServiceImpl implements MemberService
             ]);
 
         return $data->items();
+    }
+
+    function getIntegralRank()
+    {
+        return Cache::remember('MEMBER_INTEGRAL_RANK', 10, function () {
+
+            $data = $this->memberModel->orderBy('integral', 'desc')
+                ->paginate(10, ['id', 'nickname', 'cover', 'integral']);
+
+            foreach ($data as &$item) {
+                $item->cover = MemberToolkit::conversionCover($item->cover);
+            }
+
+            return $data->items();
+        });
     }
 
 
