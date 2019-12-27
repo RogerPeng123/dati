@@ -5,11 +5,13 @@ namespace App\Services\Wechat\Impl;
 
 use App\Exceptions\ApiResponseExceptions;
 use App\Models\Cycles;
+use App\Models\IntrgralLog;
 use App\Models\MemberIntegralLog;
 use App\Models\Members;
 use App\Models\Question;
 use App\Models\QuestionAnswer;
 use App\Models\QuestionOptions;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use App\Services\Wechat\CycleService;
@@ -58,9 +60,14 @@ class CycleServiceImpl implements CycleService
      */
     private $request;
 
+    /**
+     * @var IntrgralLog
+     */
+    private $intrgralLog;
+
     public function __construct(Cycles $cycleModels, Question $questionModels, LoggerInterface $logger,
                                 QuestionOptions $questionOptionsModels, QuestionAnswer $questionAnswerModels,
-                                Members $memberModel, MemberIntegralLog $integralLog, Request $request)
+                                Members $memberModel, MemberIntegralLog $integralLog, Request $request, IntrgralLog $intrgralLog)
     {
         $this->cycleModels = $cycleModels;
         $this->questionModels = $questionModels;
@@ -70,6 +77,7 @@ class CycleServiceImpl implements CycleService
         $this->memberIntegralLog = $integralLog;
         $this->logger = $logger;
         $this->request = $request;
+        $this->intrgralLog = $intrgralLog;
     }
 
     function cycleLists($user)
@@ -193,15 +201,38 @@ class CycleServiceImpl implements CycleService
             'successQuestions' => $questionsSuccessNum,
             'errorsQuestions' => $cycles->num - $questionsSuccessNum,
             'correct' => round($questionsSuccessNum / $cycles->num * 100, 2),
-            'integral' => config('integral.num') * $questionsSuccessNum
         ];
 
         $member = Cache::get('API_TOKEN_MEMBER_' . $this->request->header('x-api-key'));
 
+        //查看积分记录,判断当前用户当天是否还能获取积分
+        $intrgraCount = $this->intrgralLog->where([
+            'm_id' => $member->id, 'type' => $this->intrgralLog::TYPE_QUESTION_BANK
+        ])->where('created_at', Carbon::today())->sum('num');
+
+        //没有超过当日积分获取上限
+        if ($intrgraCount < config('integral.question_bank.today_count_num')) {
+            //当日用户还能获取积分数量
+            $remaining = config('integral.question_bank.today_count_num') - $intrgraCount;
+            //计算 正确率 * 单一题库每次最高获取积分数量  值取四舍五入
+            $intrgra = round($result['correct'] / 100 * config('integral.question_bank.today_bank'));
+            //剩下能获取的积分数量 - 应得的积分数量
+            $remainingCount = $remaining - $intrgra;
+
+            if ($remainingCount > 0) {  //还能继续获取积分
+                $result['integral'] = $intrgra;
+            } else {  // 这个时候,应得得分数判定
+                $canGet = $intrgra - $remaining;
+                $result['integral'] = $canGet > 0 ? $canGet : 0;
+            }
+        } else {
+            $result['integral'] = 0;
+        }
+
+
         DB::beginTransaction();
 
         try {
-
             $this->questionAnswerModels->qc_id = $params['qc_id'];
             $this->questionAnswerModels->m_id = $member->id;
             $this->questionAnswerModels->success_questions = $result['successQuestions'];
@@ -218,6 +249,12 @@ class CycleServiceImpl implements CycleService
 
                 if (!$res)
                     throw new ApiResponseExceptions('积分添加失败');
+
+                //新增积分增加记录
+                $this->intrgralLog->create([
+                    'm_id' => $member->id, 'type' => $this->intrgralLog::TYPE_QUESTION_BANK,
+                    'num' => $result['integral']
+                ]);
 
                 //插入多条正确答案记录(作为积分记录)
                 foreach ($questionsSuccessArray as $key => $questionSuccessItem) {

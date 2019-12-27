@@ -8,6 +8,9 @@ use App\Toolkit\ResponseApi;
 
 class MemberController extends Controller
 {
+    /**
+     * @var MemberService
+     */
     private $memberService;
 
     public function __construct(MemberService $memberService)
