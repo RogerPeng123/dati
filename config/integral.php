@@ -2,6 +2,9 @@
 return [
     'num' => env('MEMBER_INTRGRAL', 0),
 
+    'login' => [
+        'today_count_num' => env('TODAY_LOGIN_NUM', 0), //单日登录可得积分
+    ],
     //题库积分配置
     'question_bank' => [
         'today_count_num' => env('TODAY_BANK_NUM', 0),  //单日题库最多可获得积分

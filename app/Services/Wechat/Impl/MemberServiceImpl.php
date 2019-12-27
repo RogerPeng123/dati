@@ -6,12 +6,14 @@ namespace App\Services\Wechat\Impl;
 use App\Exceptions\ApiAuthenticationException;
 use App\Exceptions\ApiResponseExceptions;
 use App\Models\Cycles;
+use App\Models\IntrgralLog;
 use App\Models\Learn;
 use App\Models\LearnReadLog;
 use App\Models\QuestionAnswer;
 use App\Services\Wechat\MemberService;
 use App\Toolkit\ActionToolkit;
 use App\Toolkit\MemberToolkit;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use App\Models\Members;
@@ -44,10 +46,19 @@ class MemberServiceImpl implements MemberService
      */
     private $learnReadLog;
 
+    /**
+     * @var Learn
+     */
     private $learnModel;
 
+    /**
+     * @var IntrgralLog
+     */
+    private $intrgralLog;
+
     public function __construct(Members $memberModel, Request $request, Cycles $cycles, Learn $learnModel,
-                                QuestionAnswer $questionAnswerModel, LearnReadLog $learnReadLog)
+                                QuestionAnswer $questionAnswerModel, LearnReadLog $learnReadLog,
+                                IntrgralLog $intrgralLog)
     {
         $this->memberModel = $memberModel;
         $this->request = $request;
@@ -55,6 +66,7 @@ class MemberServiceImpl implements MemberService
         $this->learnModel = $learnModel;
         $this->questionAnswerModel = $questionAnswerModel;
         $this->learnReadLog = $learnReadLog;
+        $this->intrgralLog = $intrgralLog;
     }
 
     /**
@@ -105,6 +117,23 @@ class MemberServiceImpl implements MemberService
         }
 
         $this->memberModel->api_token = ActionToolkit::setApiToken($this->memberModel->id);
+
+        //检查当前用户是否已经领取登录积分
+        $checkState = $this->intrgralLog->where([
+            'm_id' => $this->memberModel->id, 'type' => $this->intrgralLog::TYPE_LOGIN
+        ])->where('created_at', Carbon::today())->exists();
+
+        if (!$checkState) {
+            //添加积分记录
+            $this->intrgralLog->create([
+                'm_id' => $this->memberModel->id,
+                'type' => $this->intrgralLog::TYPE_LOGIN,
+                'num' => config('integral.login.today_count_num')
+            ]);
+
+            $this->memberModel->integral = $this->memberModel->integral + config('integral.login.today_count_num');
+        }
+
         $this->memberModel->save();
 
         unset($this->memberModel->password);
