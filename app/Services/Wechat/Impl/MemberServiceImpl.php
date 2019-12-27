@@ -6,6 +6,8 @@ namespace App\Services\Wechat\Impl;
 use App\Exceptions\ApiAuthenticationException;
 use App\Exceptions\ApiResponseExceptions;
 use App\Models\Cycles;
+use App\Models\Learn;
+use App\Models\LearnReadLog;
 use App\Models\QuestionAnswer;
 use App\Services\Wechat\MemberService;
 use App\Toolkit\ActionToolkit;
@@ -37,13 +39,22 @@ class MemberServiceImpl implements MemberService
      */
     private $request;
 
-    public function __construct(Members $memberModel, Request $request, Cycles $cycles,
-                                QuestionAnswer $questionAnswerModel)
+    /**
+     * @var LearnReadLog
+     */
+    private $learnReadLog;
+
+    private $learnModel;
+
+    public function __construct(Members $memberModel, Request $request, Cycles $cycles, Learn $learnModel,
+                                QuestionAnswer $questionAnswerModel, LearnReadLog $learnReadLog)
     {
         $this->memberModel = $memberModel;
         $this->request = $request;
         $this->cycleModel = $cycles;
+        $this->learnModel = $learnModel;
         $this->questionAnswerModel = $questionAnswerModel;
+        $this->learnReadLog = $learnReadLog;
     }
 
     /**
@@ -171,6 +182,23 @@ class MemberServiceImpl implements MemberService
 
             return $data->items();
         });
+    }
+
+    //用户学习记录
+    function getMemberLearnLog()
+    {
+        $member = Cache::get('API_TOKEN_MEMBER_' . $this->request->header('x-api-key'));
+
+        return $this->learnReadLog
+            ->leftJoin($this->learnModel->getTable(),
+                $this->learnModel->getTable() . '.' . $this->learnModel->getKeyName(),
+                '=', $this->learnReadLog->getTable() . '.learn_id')
+            ->where($this->learnReadLog->getTable() . '.m_id', $member->id)
+            ->paginate(10, [
+                $this->learnModel->getTable() . '.id',
+                $this->learnModel->getTable() . '.title',
+                $this->learnReadLog->getTable() . '.created_at'
+            ])->items();
     }
 
 

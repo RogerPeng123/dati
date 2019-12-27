@@ -17,8 +17,11 @@ Route::group(['namespace' => 'Wechat'], function ($router) {
         //用户相关
         $router->group(['prefix' => 'member'], function ($router) {
             $router->get('/', 'MemberController@info');
-            $router->get('/answer/logs', 'MemberController@answerLists');
 
+            //答题记录
+            $router->get('/answer/logs', 'MemberController@answerLists');
+            //学习记录
+            $router->get('/learn/record', 'MemberController@learnLists');
             //积分排行榜
             $router->get('/integral/rank', 'MemberController@rankIntegral');
         });

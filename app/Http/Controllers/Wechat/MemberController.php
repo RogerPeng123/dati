@@ -30,4 +30,9 @@ class MemberController extends Controller
     {
         return ResponseApi::ApiSuccess('success', $this->memberService->getIntegralRank());
     }
+
+    public function learnLists()
+    {
+        return ResponseApi::ApiSuccess('success', $this->memberService->getMemberLearnLog());
+    }
 }
