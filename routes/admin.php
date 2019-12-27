@@ -49,6 +49,9 @@ Route::group([], function ($router) {
             $router->resource('members', 'MembersController');
             //会员答题记录
             $router->get('/members/logs/{id}', 'MembersController@logs')->name('members.logs');
+
+            //学习知识点管理
+            $router->resource('learn', 'LearnController');
         });
 
     });

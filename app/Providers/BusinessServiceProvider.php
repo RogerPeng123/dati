@@ -5,6 +5,8 @@ namespace App\Providers;
 
 use App\Services\Wechat\CycleService;
 use App\Services\Wechat\Impl\CycleServiceImpl;
+use App\Services\Wechat\Impl\LearnServiceImpl;
+use App\Services\Wechat\LearnService;
 use App\Services\Wechat\MemberService;
 use App\Services\Wechat\Impl\MemberServiceImpl;
 use Illuminate\Support\ServiceProvider;
@@ -31,5 +33,6 @@ class BusinessServiceProvider extends ServiceProvider
     {
         $this->app->bind(MemberService::class, MemberServiceImpl::class);
         $this->app->bind(CycleService::class, CycleServiceImpl::class);
+        $this->app->bind(LearnService::class, LearnServiceImpl::class);
     }
 }
