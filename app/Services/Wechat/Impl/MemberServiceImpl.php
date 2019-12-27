@@ -125,10 +125,12 @@ class MemberServiceImpl implements MemberService
 
         if (!$checkState) {
             //添加积分记录
-            $this->intrgralLog->create([
+            $this->intrgralLog->insert([
                 'm_id' => $this->memberModel->id,
                 'type' => $this->intrgralLog::TYPE_LOGIN,
-                'num' => config('integral.login.today_count_num')
+                'num' => config('integral.login.today_count_num'),
+                'created_at' => date('Y-m-d H:i:s', time()),
+                'updated_at' => date('Y-m-d H:i:s', time()),
             ]);
 
             $this->memberModel->integral = $this->memberModel->integral + config('integral.login.today_count_num');

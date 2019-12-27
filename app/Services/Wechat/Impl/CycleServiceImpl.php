@@ -251,9 +251,12 @@ class CycleServiceImpl implements CycleService
                     throw new ApiResponseExceptions('积分添加失败');
 
                 //新增积分增加记录
-                $this->intrgralLog->create([
-                    'm_id' => $member->id, 'type' => $this->intrgralLog::TYPE_QUESTION_BANK,
-                    'num' => $result['integral']
+                $this->intrgralLog->insert([
+                    'm_id' => $member->id,
+                    'type' => $this->intrgralLog::TYPE_QUESTION_BANK,
+                    'num' => $result['integral'],
+                    'created_at' => date('Y-m-d H:i:s', time()),
+                    'updated_at' => date('Y-m-d H:i:s', time())
                 ]);
 
                 //插入多条正确答案记录(作为积分记录)
