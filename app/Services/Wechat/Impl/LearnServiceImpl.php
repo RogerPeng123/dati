@@ -74,7 +74,6 @@ class LearnServiceImpl implements LearnService
 
         $this->learnIntegralHandle($id);
 
-
         return $result;
     }
 
@@ -100,6 +99,9 @@ class LearnServiceImpl implements LearnService
 
             $this->learnReadLog->save();
 
+            //增加学习次数
+            $this->membersModel->where('id', $member->id)->increment('learn_num');
+
             //次数*单次可获得的积分 如果小于每日可获得的积分
             if ($count * config('integral.learn.today_read') < config('integral.learn.today_read_num')) {
 
@@ -118,7 +120,6 @@ class LearnServiceImpl implements LearnService
                     $this->membersModel->where('id', $member->id)
                         ->increment('integral', config('integral.learn.today_read'));
                 }
-
             }
 
             DB::commit();
