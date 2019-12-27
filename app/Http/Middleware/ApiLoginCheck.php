@@ -3,12 +3,10 @@
 namespace App\Http\Middleware;
 
 use App\Exceptions\ApiAuthenticationException;
-use App\Exceptions\ApiResponseExceptions;
 use App\Models\IntrgralLog;
 use App\Models\Members;
-use Carbon\Carbon;
+use App\Toolkit\TimeToolkit;
 use Closure;
-use Illuminate\Auth\AuthenticationException;
 use Illuminate\Support\Facades\Cache;
 use Psr\Log\LoggerInterface;
 
@@ -75,7 +73,7 @@ class ApiLoginCheck
         //检查当前用户是否已经领取登录积分
         $checkState = $this->intrgralLog->where([
             'm_id' => $members->id, 'type' => $this->intrgralLog::TYPE_LOGIN
-        ])->where('created_at', Carbon::today())->exists();
+        ])->whereBetween('created_at', TimeToolkit::getDayStarAndEnd())->exists();
 
         if (!$checkState) {
             //添加积分记录

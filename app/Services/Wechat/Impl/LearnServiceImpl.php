@@ -10,7 +10,7 @@ use App\Models\Learn;
 use App\Models\LearnReadLog;
 use App\Models\Members;
 use App\Services\Wechat\LearnService;
-use Carbon\Carbon;
+use App\Toolkit\TimeToolkit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -54,7 +54,8 @@ class LearnServiceImpl implements LearnService
 
     function getLearnLists()
     {
-        return $this->learnModel->simplePaginate(10, ['id', 'title', 'abstract'])->items();
+        return $this->learnModel->orderBy('created_at', 'desc')
+            ->simplePaginate(10, ['id', 'title', 'abstract'])->items();
     }
 
     /**
@@ -89,7 +90,8 @@ class LearnServiceImpl implements LearnService
         $member = Cache::get('API_TOKEN_MEMBER_' . $this->request->header('x-api-key'));
 
         //查看当前用户今日阅读记录数量
-        $count = $this->learnReadLog->where(['m_id' => $member->id])->where('created_at', Carbon::today())->count();
+        $count = $this->learnReadLog->where(['m_id' => $member->id])
+            ->whereBetween('created_at', TimeToolkit::getDayStarAndEnd())->count();
 
         DB::beginTransaction();
         try {

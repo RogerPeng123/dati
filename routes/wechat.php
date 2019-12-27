@@ -24,6 +24,8 @@ Route::group(['namespace' => 'Wechat'], function ($router) {
             $router->get('/learn/record', 'MemberController@learnLists');
             //积分排行榜
             $router->get('/integral/rank', 'MemberController@rankIntegral');
+            //用户积分记录
+            $router->get('/integral/logs', 'MemberController@integralLogs');
         });
 
         //题目相关

@@ -11,7 +11,7 @@ use App\Models\Members;
 use App\Models\Question;
 use App\Models\QuestionAnswer;
 use App\Models\QuestionOptions;
-use Carbon\Carbon;
+use App\Toolkit\TimeToolkit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use App\Services\Wechat\CycleService;
@@ -208,7 +208,7 @@ class CycleServiceImpl implements CycleService
         //查看积分记录,判断当前用户当天是否还能获取积分
         $intrgraCount = $this->intrgralLog->where([
             'm_id' => $member->id, 'type' => $this->intrgralLog::TYPE_QUESTION_BANK
-        ])->where('created_at', Carbon::today())->sum('num');
+        ])->whereBetween('created_at', TimeToolkit::getDayStarAndEnd())->sum('num');
 
         //没有超过当日积分获取上限
         if ($intrgraCount < config('integral.question_bank.today_count_num')) {

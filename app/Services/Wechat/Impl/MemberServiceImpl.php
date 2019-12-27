@@ -13,7 +13,7 @@ use App\Models\QuestionAnswer;
 use App\Services\Wechat\MemberService;
 use App\Toolkit\ActionToolkit;
 use App\Toolkit\MemberToolkit;
-use Carbon\Carbon;
+use App\Toolkit\TimeToolkit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use App\Models\Members;
@@ -56,6 +56,8 @@ class MemberServiceImpl implements MemberService
      */
     private $intrgralLog;
 
+    private $members;
+
     public function __construct(Members $memberModel, Request $request, Cycles $cycles, Learn $learnModel,
                                 QuestionAnswer $questionAnswerModel, LearnReadLog $learnReadLog,
                                 IntrgralLog $intrgralLog)
@@ -67,6 +69,8 @@ class MemberServiceImpl implements MemberService
         $this->questionAnswerModel = $questionAnswerModel;
         $this->learnReadLog = $learnReadLog;
         $this->intrgralLog = $intrgralLog;
+
+        $this->members = Cache::get('API_TOKEN_MEMBER_' . $this->request->header('x-api-key'));
     }
 
     /**
@@ -121,7 +125,7 @@ class MemberServiceImpl implements MemberService
         //检查当前用户是否已经领取登录积分
         $checkState = $this->intrgralLog->where([
             'm_id' => $this->memberModel->id, 'type' => $this->intrgralLog::TYPE_LOGIN
-        ])->where('created_at', Carbon::today())->exists();
+        ])->whereBetween('created_at', TimeToolkit::getDayStarAndEnd())->exists();
 
         if (!$checkState) {
             //添加积分记录
@@ -230,6 +234,38 @@ class MemberServiceImpl implements MemberService
                 $this->learnModel->getTable() . '.title',
                 $this->learnReadLog->getTable() . '.created_at'
             ])->items();
+    }
+
+    function getMemberIntegralLogs()
+    {
+        $data = $this->intrgralLog->where('m_id', $this->members->id)->orderBy('created_at', 'desc')
+            ->paginate(10, [
+                'id', 'type', 'num', 'created_at'
+            ])->items();
+
+        foreach ($data as &$item) {
+            switch ($item->type) {
+                case $this->intrgralLog::TYPE_LOGIN:
+                    $item->type = '登录积分';
+                    break;
+                case $this->intrgralLog::TYPE_READ:
+                    $item->type = '学习积分';
+                    break;
+                case $this->intrgralLog::TYPE_QUESTION_BANK:
+                    $item->type = '自测积分';
+                    break;
+                case $this->intrgralLog::TYPE_LEAEN:
+                    $item->type = '题库学习';
+                    break;
+                case $this->intrgralLog::TYPE_COLLECTION:
+                    $item->type = '收藏积分';
+                    break;
+                default:
+                    $item->type = '未知异常数据';
+            }
+        }
+
+        return $data;
     }
 
 

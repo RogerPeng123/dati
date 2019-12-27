@@ -17,4 +17,6 @@ interface MemberService
     function getIntegralRank();
 
     function getMemberLearnLog();
+
+    function getMemberIntegralLogs();
 }

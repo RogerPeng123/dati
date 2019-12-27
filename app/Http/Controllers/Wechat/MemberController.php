@@ -38,4 +38,9 @@ class MemberController extends Controller
     {
         return ResponseApi::ApiSuccess('success', $this->memberService->getMemberLearnLog());
     }
+
+    public function integralLogs()
+    {
+        return ResponseApi::ApiSuccess('success', $this->memberService->getMemberIntegralLogs());
+    }
 }
