@@ -95,20 +95,20 @@ class LearnServiceImpl implements LearnService
 
         DB::beginTransaction();
         try {
-            //添加阅读文章记录
-            $this->learnReadLog->m_id = $member->id;
-            $this->learnReadLog->learn_id = $id;
-
-            $this->learnReadLog->save();
-
-            //增加学习次数
-            $this->membersModel->where('id', $member->id)->increment('learn_num');
 
             //次数*单次可获得的积分 如果小于每日可获得的积分
             if ($count * config('integral.learn.today_read') < config('integral.learn.today_read_num')) {
 
                 //当前用户是否阅读过该文章
                 $exists = $this->learnReadLog->where(['m_id' => $member->id, 'learn_id' => $id])->exists();
+
+                //添加阅读文章记录
+                $this->learnReadLog->m_id = $member->id;
+                $this->learnReadLog->learn_id = $id;
+                $this->learnReadLog->save();
+
+                //增加学习次数
+                $this->membersModel->where('id', $member->id)->increment('learn_num');
 
                 if (!$exists) {
                     //添加积分记录
