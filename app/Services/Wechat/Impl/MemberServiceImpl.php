@@ -229,6 +229,7 @@ class MemberServiceImpl implements MemberService
                 $this->learnModel->getTable() . '.' . $this->learnModel->getKeyName(),
                 '=', $this->learnReadLog->getTable() . '.learn_id')
             ->where($this->learnReadLog->getTable() . '.m_id', $member->id)
+            ->orderBy($this->learnReadLog->getTable() . '.created_at', 'desc')
             ->paginate(10, [
                 $this->learnModel->getTable() . '.id',
                 $this->learnModel->getTable() . '.title',
