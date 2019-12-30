@@ -84,6 +84,7 @@ class CycleServiceImpl implements CycleService
     {
         $db = $this->cycleModels
             ->where('status', $this->cycleModels::SHOW_STATUS)
+            ->where('special', $this->cycleModels::TYPE_SPECIAL_NORMAL)
             ->orderBy('years', 'desc')
             ->orderBy('months', 'desc')
             ->orderBy('cycles', 'desc')
@@ -125,6 +126,7 @@ class CycleServiceImpl implements CycleService
         $qcArray = $this->questionAnswerModels->where(['m_id' => $member->id])->groupBy('qc_id')->pluck('qc_id');
 
         $id = $this->cycleModels->whereNotIn('id', $qcArray)->where('status', $this->cycleModels::SHOW_STATUS)
+            ->where('special', $this->cycleModels::TYPE_SPECIAL_NORMAL)
             ->orderBy('id', 'desc')->value('id');
 
         if (!$id) {
@@ -286,5 +288,46 @@ class CycleServiceImpl implements CycleService
 
         return $result;
     }
+
+    function getCycleSpecialList()
+    {
+        $db = $this->cycleModels
+            ->where('status', $this->cycleModels::SHOW_STATUS)
+            ->where('special', $this->cycleModels::TYPE_SPECIAL_TOP)
+            ->orderBy('years', 'desc')
+            ->orderBy('months', 'desc')
+            ->orderBy('cycles', 'desc')
+            ->simplePaginate(10, ['id', 'title', 'years', 'months', 'cycles']);
+
+        $member = Cache::get('API_TOKEN_MEMBER_' . $this->request->header('x-api-key'));
+
+        foreach ($db as $item) {
+            if ($this->questionAnswerModels->where(['qc_id' => $item->id, 'm_id' => $member->id])->exists()) {
+                $item->is_answer = 1;
+            } else {
+                $item->is_answer = 0;
+            }
+        }
+
+        return $db->items();
+    }
+
+    function getCycleSpecialNextList()
+    {
+        $member = Cache::get('API_TOKEN_MEMBER_' . $this->request->header('x-api-key'));
+
+        $qcArray = $this->questionAnswerModels->where(['m_id' => $member->id])->groupBy('qc_id')->pluck('qc_id');
+
+        $id = $this->cycleModels->whereNotIn('id', $qcArray)->where('status', $this->cycleModels::SHOW_STATUS)
+            ->where('special', $this->cycleModels::TYPE_SPECIAL_TOP)
+            ->orderBy('id', 'desc')->value('id');
+
+        if (!$id) {
+            throw new ApiResponseExceptions('没有下一期,请期待更多专项答题上线...');
+        }
+
+        return ['qc_id' => $id, 'questions' => $this->cycleQuestion($id)];
+    }
+
 
 }

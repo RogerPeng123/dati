@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Cycles;
 use App\Models\Question;
+use App\Models\QuestionOptions;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -13,7 +14,9 @@ class QuestionController extends Controller
 
     private $questionCycleModel;
 
-    public function __construct(Question $question, Cycles $cycles)
+    private $questionOptionsModel;
+
+    public function __construct(Question $question, Cycles $cycles, QuestionOptions $questionOptionsModel)
     {
         $this->questionModel = $question;
         $this->questionCycleModel = $cycles;
@@ -32,10 +35,14 @@ class QuestionController extends Controller
 
         $data = $this->questionModel->where('qc_id', $id)->orderBy('created_at', 'desc')->paginate(10);
 
+
+        $cycles = $this->questionCycleModel->where(['special' => $this->questionCycleModel::TYPE_SPECIAL_TOP])
+            ->get(['id', 'title']);
+
         $cycle = $this->questionCycleModel->find($id);
 
         return view(getThemeView('question.lists'), [
-            'data' => $data, 'qc_id' => $id, 'cycle' => $cycle]);
+            'data' => $data, 'qc_id' => $id, 'cycle' => $cycle, 'cycles' => $cycles]);
 
     }
 
@@ -148,7 +155,7 @@ class QuestionController extends Controller
 
         return redirect()->route('question.index', ['qc_id' => $request->get('qc_id')]);
     }
-    
+
     /**
      * Remove the specified resource from storage.
      * Author: roger peng
@@ -169,5 +176,37 @@ class QuestionController extends Controller
         }
 
         return response()->json($data);
+    }
+
+    //转移至专项问题
+    public function changeSpecial(Request $request)
+    {
+        $params = $request->only(['special_id', 'question_id']);
+
+        $question = $this->questionModel->find($params['question_id']);
+
+        $newQuestion = $this->questionModel->insertGetId([
+            'title' => $question->title, 'type' => $question->type, 'qc_id' => $params['special_id'],
+            'parsing' => $question->parsing, 'judge_success' => $question->judge_success,
+            'created_at' => date('Y-m-d H:i:s', time()), 'updated_at' => date('Y-m-d H:i:s', time())
+        ]);
+
+        if ($question->type == $this->questionModel::TYPE_CHOOSE
+            || $question->type == $this->questionModel::TYPE_MULTI) {
+
+            $options = [];
+            foreach ($question->questionOptions as $key => $item) {
+                $options[$key]['q_id'] = $newQuestion;
+                $options[$key]['content'] = $item->content;
+                $options[$key]['is_success'] = $item->is_success;
+                $options[$key]['created_at'] = date('Y-m-d H:i:s', time());
+                $options[$key]['updated_at'] = date('Y-m-d H:i:s', time());
+            }
+            QuestionOptions::insert($options);
+        }
+
+        $this->questionCycleModel->where('id', $params['special_id'])->increment('num');
+
+        return response()->json(['message' => '执行成功', 'code' => 200]);
     }
 }

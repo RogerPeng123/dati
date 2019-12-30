@@ -48,6 +48,14 @@ Route::group(['namespace' => 'Wechat'], function ($router) {
             $router->get('/{id}', 'LearnController@findLearn')->where(['id' => '[0-9]+']);
         });
 
+        //专项答题相关
+        $router->group(['prefix' => 'special'], function ($router) {
+            //专项答题列表
+            $router->get('/lists', 'SpecialController@lists');
+            //下一组题目
+            $router->get('/next/question', 'SpecialController@questionNext');
+        });
+
     });
 
 });

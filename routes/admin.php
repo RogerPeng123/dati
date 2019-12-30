@@ -41,17 +41,23 @@ Route::group([], function ($router) {
 
             // 期题题目管理
             $router->resource('question', 'QuestionController');
+            // 题目迁移至专项答题
+            $router->post('/question/change/special', 'QuestionController@changeSpecial')
+                ->name('question.change.special');
 
-            //答案管理
+            // 答案管理
             $router->resource('options', 'QuestionOptionsController');
 
-            //会员管理
+            // 会员管理
             $router->resource('members', 'MembersController');
-            //会员答题记录
+            // 会员答题记录
             $router->get('/members/logs/{id}', 'MembersController@logs')->name('members.logs');
 
-            //学习知识点管理
+            // 学习知识点管理
             $router->resource('learn', 'LearnController');
+
+            // 专项答题管理
+            $router->resource('special', 'SpecialController');
         });
 
     });

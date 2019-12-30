@@ -12,6 +12,9 @@ class Cycles extends Model
     const NORMAL_STATUS = 0;
     const SHOW_STATUS = 1;
 
+    const TYPE_SPECIAL_NORMAL = 1;
+    const TYPE_SPECIAL_TOP = 2;
+
     protected $table = 'question_cycle';
 
     protected $primaryKey = 'id';

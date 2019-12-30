@@ -90,6 +90,12 @@
                                                     <td>{{ $item->created_at }}</td>
                                                     <td>{{ $item->updated_at }}</td>
                                                     <td>
+                                                        @if($cycle->special === \App\Models\Cycles::TYPE_SPECIAL_NORMAL)
+                                                            <a data-id="{{ $item->id }}"
+                                                               class="btn btn-xs btn-outline btn-primary tooltips change-special">
+                                                                移至专项
+                                                            </a>
+                                                        @endif
                                                         <a href="{{ route('question.edit',['id'=>encodeId($item->id),'qc_id'=>$cycle->id]) }}"
                                                            class="btn btn-xs btn-outline btn-warning tooltips">
                                                             <i class="fa fa-edit"></i>
@@ -129,11 +135,71 @@
             </div>
         </div>
     </div>
+
+
+    <!-- 模态框（Modal） -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title" id="myModalLabel">加入专项答题</h4>
+                </div>
+                <div class="modal-body">
+                    <form method="post" class="form-horizontal">
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">选择专项答题</label>
+                            <div class="col-sm-9">
+                                <select class="form-control" id="special_select">
+                                    @foreach($cycles as $item)
+                                        <option value="{{ $item->id }}">{{ $item->title }}</option>
+                                    @endforeach
+
+                                </select>
+                            </div>
+                        </div>
+
+                        <input id="question_id" type="hidden">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" id="sub-add-special">提交更改</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.modal -->
 @endsection
 @section('js')
     <script src="{{asset(getThemeAssets('dataTables/datatables.min.js', true))}}"></script>
     <script src="{{asset(getThemeAssets('layer/layer.js', true))}}"></script>
     <script type="text/javascript">
+        $(function () {
+            $('.change-special').on('click', function () {
+                $('#question_id').val($(this).attr('data-id'));
+                $('#myModal').modal('show');
+            });
+
+            $('#sub-add-special').on('click', function () {
+                let special_id = $('#special_select').val();
+                let question_id = $('#question_id').val();
+
+
+                let url = "{{ route('question.change.special') }}";
+                let data = {question_id: question_id, special_id: special_id, _token: "{{csrf_token()}}"};
+
+                $.post(url, data, function (e) {
+                    if (e.code == 200) {
+                        layer.alert(e.message);
+                        $('#myModal').modal('hide');
+                    }
+                }, 'json');
+
+            });
+        })
+
         $(document).on('click', '.destroy_item', function () {
             var _item = $(this);
             var title = "{{trans('common.deleteTitle').trans('cycle.slug')}}？";

@@ -13,4 +13,8 @@ interface CycleService
     function cycleQuestionNext();
 
     function cycleSubmit(array $params);
+
+    function getCycleSpecialList();
+
+    function getCycleSpecialNextList();
 }

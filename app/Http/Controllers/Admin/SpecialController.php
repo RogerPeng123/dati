@@ -6,7 +6,7 @@ use App\Models\Cycles;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-class CycleController extends Controller
+class SpecialController extends Controller
 {
     private $cycleModel;
 
@@ -29,11 +29,11 @@ class CycleController extends Controller
         $data = $this->cycleModel->when($search, function ($query) use ($search) {
             $query->where('title', 'like', "%$search%");
         })
-            ->where('special', $this->cycleModel::TYPE_SPECIAL_NORMAL)
+            ->where('special', $this->cycleModel::TYPE_SPECIAL_TOP)
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
-        return view(getThemeView('cycle.list'), [
+        return view(getThemeView('special.list'), [
             'data' => $data, 'search' => $request->get('search', '')
         ]);
     }
@@ -51,12 +51,12 @@ class CycleController extends Controller
         $months = date('m', $time);
 
         $cycle = $this->cycleModel->where([
-            'years' => $year, 'months' => $months, 'special' => $this->cycleModel::TYPE_SPECIAL_NORMAL
+            'years' => $year, 'months' => $months, 'special' => $this->cycleModel::TYPE_SPECIAL_TOP
         ])
             ->orderBy('created_at', 'desc')
             ->first(['cycles']);
 
-        return view(getThemeView('cycle.create'), [
+        return view(getThemeView('special.create'), [
             'year' => $year, 'months' => $months, 'cycle' => $cycle ? ($cycle['cycles'] + 1) : 1]);
     }
 
@@ -84,7 +84,7 @@ class CycleController extends Controller
         $months = date('m', $time);
 
         $cycle = $this->cycleModel->where([
-            'years' => $year, 'months' => $months, 'special' => $this->cycleModel::TYPE_SPECIAL_NORMAL
+            'years' => $year, 'months' => $months, 'special' => $this->cycleModel::TYPE_SPECIAL_TOP
         ])->orderBy('created_at', 'desc')->first(['cycles']);
 
         $cycle = $cycle ? ($cycle['cycles'] + 1) : 1;
@@ -95,12 +95,12 @@ class CycleController extends Controller
         $this->cycleModel->months = $months;
         $this->cycleModel->cycles = $cycle;
         $this->cycleModel->status = $request->get('status');
-        $this->cycleModel->special = $this->cycleModel::TYPE_SPECIAL_NORMAL;
+        $this->cycleModel->special = $this->cycleModel::TYPE_SPECIAL_TOP;
 
         $this->cycleModel->save()
             ? flash('新增期题成功')->success() : flash('新增期题失败')->error();
 
-        return redirect()->route('cycle.index');
+        return redirect()->route('special.index');
     }
 
     /**
@@ -114,7 +114,7 @@ class CycleController extends Controller
     {
         $data = $this->cycleModel->find(decodeId($id));
 
-        return view(getThemeView('cycle.show'), ['view' => $data]);
+        return view(getThemeView('special.show'), ['view' => $data]);
     }
 
     /**
@@ -128,7 +128,7 @@ class CycleController extends Controller
     {
         $data = $this->cycleModel->find(decodeId($id));
 
-        return view(getThemeView('cycle.edit'), ['view' => $data]);
+        return view(getThemeView('special.edit'), ['view' => $data]);
     }
 
     /**
@@ -158,7 +158,7 @@ class CycleController extends Controller
 
         $this->cycleModel->save() ? flash('更新成功')->success() : flash('更新失败')->error();
 
-        return redirect()->route('cycle.index');
+        return redirect()->route('special.index');
     }
 
     /**
