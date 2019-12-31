@@ -90,7 +90,7 @@
                                                     <td>{{ $item->created_at }}</td>
                                                     <td>{{ $item->updated_at }}</td>
                                                     <td>
-                                                        @if($cycle->special === \App\Models\Cycles::TYPE_SPECIAL_NORMAL)
+                                                        @if($cycle->special == \App\Models\Cycles::TYPE_SPECIAL_NORMAL)
                                                             <a data-id="{{ $item->id }}"
                                                                class="btn btn-xs btn-outline btn-primary tooltips change-special">
                                                                 移至专项
