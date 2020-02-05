@@ -115,6 +115,24 @@ class CycleServiceImpl implements CycleService
 
     function cycleQuestion(int $id)
     {
+        // 1. 判断是否在7天内答题答题(以最后一次修改期题为准,非期题里面题目内容)
+        $updatedAt = $this->cycleModels->where('id', $id)->value(['updated_at']);
+        $updatedAtTime = date_create($updatedAt);//得到日前的DateTime对象
+        $updatedAtTimeLast = date_add($updatedAtTime,
+            date_interval_create_from_date_string("7 days")); //日期基础新增7天
+
+        //超出7天答题期限
+        if (time() > $updatedAtTimeLast->getTimestamp()) {
+            throw new ApiResponseExceptions('题目超出7天答题期');
+        }
+
+        // 2. 判断是否超出3次答题机会
+        $user = Cache::get('API_TOKEN_MEMBER_' . $this->request->header('x-api-key'));
+        $num = $this->questionAnswerModels->where(['qc_id' => $id, 'm_id' => $user->id])->count();
+        if ($num > 3 || $num == 3) {
+            throw new ApiResponseExceptions('题目超出答题次数');
+        }
+
         $db = $this->questionModels->where('qc_id', $id)->get(['id', 'title', 'type', 'judge_success', 'parsing']);
 
         foreach ($db as &$item) {
