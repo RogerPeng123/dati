@@ -133,6 +133,13 @@ class CycleServiceImpl implements CycleService
             throw new ApiResponseExceptions('题目超出答题次数');
         }
 
+        // 3. 如果已答过题，则判断正确率是否已超过80%
+        $correct = $this->questionAnswerModels->where(['qc_id' => $id, 'm_id' => $user->id])->orderBy('id', 'desc')
+            ->value('correct');
+        if ($correct > 80 || $correct == 80) {
+            throw new ApiResponseExceptions('题目已达标,请勿重复作答');
+        }
+
         $db = $this->questionModels->where('qc_id', $id)->get(['id', 'title', 'type', 'judge_success', 'parsing']);
 
         foreach ($db as &$item) {
@@ -237,29 +244,38 @@ class CycleServiceImpl implements CycleService
 
         $member = Cache::get('API_TOKEN_MEMBER_' . $this->request->header('x-api-key'));
 
-        //查看积分记录,判断当前用户当天是否还能获取积分
-        $intrgraCount = $this->intrgralLog->where([
-            'm_id' => $member->id, 'type' => $this->intrgralLog::TYPE_QUESTION_BANK
-        ])->whereBetween('created_at', TimeToolkit::getDayStarAndEnd())->sum('num');
-
-        //没有超过当日积分获取上限
-        if ($intrgraCount < config('integral.question_bank.today_count_num')) {
-            //当日用户还能获取积分数量
-            $remaining = config('integral.question_bank.today_count_num') - $intrgraCount;
-            //计算 正确率 * 单一题库每次最高获取积分数量  值取四舍五入
-            $intrgra = round($result['correct'] / 100 * config('integral.question_bank.today_bank'));
-            //剩下能获取的积分数量 - 应得的积分数量
-            $remainingCount = $remaining - $intrgra;
-
-            if ($remainingCount > 0) {  //还能继续获取积分
-                $result['integral'] = $intrgra;
-            } else {  // 这个时候,应得得分数判定
-                $canGet = $intrgra - $remaining;
-                $result['integral'] = $canGet > 0 ? $canGet : 0;
-            }
-        } else {
+        //正确率低于80%  不得积分
+        if ($result['correct'] < 80) {
             $result['integral'] = 0;
+        } else {
+            //答对题目获得2分
+            $result['integral'] = 2;
         }
+
+
+//        //查看积分记录,判断当前用户当天是否还能获取积分
+//        $intrgraCount = $this->intrgralLog->where([
+//            'm_id' => $member->id, 'type' => $this->intrgralLog::TYPE_QUESTION_BANK
+//        ])->whereBetween('created_at', TimeToolkit::getDayStarAndEnd())->sum('num');
+//
+//        //没有超过当日积分获取上限
+//        if ($intrgraCount < config('integral.question_bank.today_count_num')) {
+//            //当日用户还能获取积分数量
+//            $remaining = config('integral.question_bank.today_count_num') - $intrgraCount;
+//            //计算 正确率 * 单一题库每次最高获取积分数量  值取四舍五入
+//            $intrgra = round($result['correct'] / 100 * config('integral.question_bank.today_bank'));
+//            //剩下能获取的积分数量 - 应得的积分数量
+//            $remainingCount = $remaining - $intrgra;
+//
+//            if ($remainingCount > 0) {  //还能继续获取积分
+//                $result['integral'] = $intrgra;
+//            } else {  // 这个时候,应得得分数判定
+//                $canGet = $intrgra - $remaining;
+//                $result['integral'] = $canGet > 0 ? $canGet : 0;
+//            }
+//        } else {
+//            $result['integral'] = 0;
+//        }
 
 
         DB::beginTransaction();
