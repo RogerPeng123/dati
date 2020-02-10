@@ -176,9 +176,89 @@ class MemberServiceImpl implements MemberService
 
         $this->memberModel->cover = env('APP_URL') . $this->memberModel->cover;
 
+        //题库待完成数据
+        $this->memberModel->pending = $this->pending($this->memberModel->id);
+
+        //题库完成率计算
+        $this->memberModel->completion = $this->completion($this->memberModel->pending);
+
+        //题库达标率计算
+        $this->memberModel->success_rate = $this->successRate($this->memberModel->id);
+
         Cache::put('API_TOKEN_MEMBER_' . $this->request->header('x-api-key'), $this->memberModel, 60 * 24 * 30);
 
         return $this->memberModel;
+    }
+
+    //达标率
+    private function successRate(int $mId): float
+    {
+        $cycles = $this->cycleModel->get(['id']);
+
+        $count = 0;
+        $corrects = 0;
+
+        foreach ($cycles as $cycle) {
+            $exists = $this->existesCycle($cycle->id, $mId);
+            if (!$exists) {
+                $count++;
+
+                $corrects += $this->correctCount($cycle->id);
+            }
+        }
+
+        if ($corrects != 0) {
+            return round($corrects / $count, 2);
+        }
+
+        return 0;
+    }
+
+    private function correctCount(int $id): float
+    {
+        return Cache::remember('QUESTION_ANSWER_CORRECT_' . $id, 60 * 24 * 30, function () use ($id) {
+            $answer = $this->questionAnswerModel->where(['qc_id' => $id, 'm_id' => $this->memberModel->id])
+                ->orderBy('id', 'desc')->first(['correct']);
+
+            return $answer['correct'];
+        });
+    }
+
+    //计算出完成率
+    private function completion(int $pendint): float
+    {
+        $count = $this->cycleModel->count();
+
+        return round(($count - $pendint) / $count * 100, 2);
+    }
+
+    //计算当前用户在题库中没有作答的题目数量
+    private function pending(int $mId): int
+    {
+        $cycles = $this->cycleModel->get(['id']);
+
+        $num = 0;
+        foreach ($cycles as $cycle) {
+            $exists = $this->existesCycle($cycle->id, $mId);
+            if ($exists) {
+                $num++;
+            }
+        }
+
+        return $num;
+    }
+
+    //判断当前用户对于答题是否作答
+    private function existesCycle($qcId, $mId): int
+    {
+        return Cache::remember('QUESTION_ANSWER_EXISTS_QC_ID_' . $qcId . '_MID_' . $mId, 60 * 24 * 30,
+            function () use ($qcId, $mId) {
+                if ($this->questionAnswerModel->where(['qc_id' => $qcId, 'm_id' => $mId])->exists()) {
+                    return 0;
+                } else {
+                    return 1;
+                }
+            });
     }
 
     function getMemberAnswerLog()
