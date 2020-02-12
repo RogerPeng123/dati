@@ -66,6 +66,9 @@
                                             <th>用户积分</th>
                                             <th>答题次数</th>
                                             <th>学习次数</th>
+                                            <th>待完成</th>
+                                            <th>完成率</th>
+                                            <th>达标率</th>
                                             <th>注册时间</th>
                                             <th>修改时间</th>
                                             <th>操作</th>
@@ -82,6 +85,11 @@
                                                     <td>{{ $item->integral }}</td>
                                                     <td>{{ $item->questions_num }}</td>
                                                     <td>{{ $item->learn_num }}</td>
+
+                                                    <td>{{ $item->pending }}</td>
+                                                    <td>{{ $item->completion }}</td>
+                                                    <td>{{ $item->success_rate }}</td>
+
                                                     <td>{{ $item->created_at }}</td>
                                                     <td>{{ $item->updated_at }}</td>
                                                     <td>
