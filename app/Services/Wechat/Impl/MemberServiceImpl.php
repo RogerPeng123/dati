@@ -349,5 +349,27 @@ class MemberServiceImpl implements MemberService
         return $data;
     }
 
+    function changeMemberInfo(array $update): Members
+    {
+        $this->memberModel = $this->memberModel->find($this->members->id);
+
+        $vaule = current($update);
+        $key = key($update);
+
+        $this->memberModel->$key = $vaule;
+
+        $result = $this->memberModel->save();
+
+        throw_unless($result, ApiResponseExceptions::class, '修改信息失败');
+
+        Cache::forget('API_TOKEN_MEMBER_' . $this->members->api_token);
+
+        unset($this->memberModel->password);
+        unset($this->memberModel->deleted_at);
+        unset($this->memberModel->created_at);
+
+        return $this->memberModel;
+    }
+
 
 }

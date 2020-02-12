@@ -4,6 +4,8 @@
 namespace App\Services\Wechat;
 
 
+use App\Models\Members;
+
 interface MemberService
 {
     function registerMember(array $params);
@@ -19,4 +21,6 @@ interface MemberService
     function getMemberLearnLog();
 
     function getMemberIntegralLogs();
+
+    function changeMemberInfo(array $update): Members;
 }

@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Wechat;
 
+use App\Http\Requests\Wechat\MemberRequest;
 use App\Services\Wechat\MemberService;
 use App\Http\Controllers\Controller;
 use App\Toolkit\ResponseApi;
+use Illuminate\Support\Facades\Crypt;
 
 class MemberController extends Controller
 {
@@ -42,5 +44,19 @@ class MemberController extends Controller
     public function integralLogs()
     {
         return ResponseApi::ApiSuccess('success', $this->memberService->getMemberIntegralLogs());
+    }
+
+    public function changeMobile(MemberRequest $request)
+    {
+        return ResponseApi::ApiSuccess('success', $this->memberService->changeMemberInfo([
+            'username' => $request->get('mobile')
+        ]));
+    }
+
+    public function changePassword(MemberRequest $request)
+    {
+        return ResponseApi::ApiSuccess('success', $this->memberService->changeMemberInfo([
+            'password' => Crypt::encryptString($request->get('password'))
+        ]));
     }
 }

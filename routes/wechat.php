@@ -18,6 +18,11 @@ Route::group(['namespace' => 'Wechat'], function ($router) {
         $router->group(['prefix' => 'member'], function ($router) {
             $router->get('/', 'MemberController@info');
 
+            //更改手机号码
+            $router->post('/change/mobile', 'MemberController@changeMobile');
+            //更换密码
+            $router->post('/change/password', 'MemberController@changePassword');
+
             //答题记录
             $router->get('/answer/logs', 'MemberController@answerLists');
             //学习记录
