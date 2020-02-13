@@ -62,7 +62,7 @@ class MembersController extends Controller
             if (!$exists) {
                 $count++;
 
-                $corrects += $this->correctCount($cycle->id);
+                $corrects += $this->correctCount($cycle->id, $mId);
             }
         }
 
@@ -73,11 +73,10 @@ class MembersController extends Controller
         return 0;
     }
 
-    private function correctCount(int $id): float
+    private function correctCount(int $id, int $mId): float
     {
-        $member = $this->memebrModel;
-        return Cache::remember('QUESTION_ANSWER_CORRECT_' . $id, 60 * 24 * 30, function () use ($id, $member) {
-            $answer = $this->questionAnswerModel->where(['qc_id' => $id, 'm_id' => $member->id])
+        return Cache::remember('QUESTION_ANSWER_CORRECT_' . $id, 60 * 24 * 30, function () use ($id, $mId) {
+            $answer = $this->questionAnswerModel->where(['qc_id' => $id, 'm_id' => $mId])
                 ->orderBy('id', 'desc')->first(['correct']);
 
             return $answer['correct'];
