@@ -75,8 +75,9 @@ class MembersController extends Controller
 
     private function correctCount(int $id): float
     {
-        return Cache::remember('QUESTION_ANSWER_CORRECT_' . $id, 60 * 24 * 30, function () use ($id) {
-            $answer = $this->questionAnswerModel->where(['qc_id' => $id, 'm_id' => $this->memberModel->id])
+        $member = $this->memebrModel;
+        return Cache::remember('QUESTION_ANSWER_CORRECT_' . $id, 60 * 24 * 30, function () use ($id, $member) {
+            $answer = $this->questionAnswerModel->where(['qc_id' => $id, 'm_id' => $member->id])
                 ->orderBy('id', 'desc')->first(['correct']);
 
             return $answer['correct'];
