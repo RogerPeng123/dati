@@ -212,7 +212,7 @@ class CycleController extends Controller
             $this->memberModel->getTable() . '.' . $this->memberModel->getKeyName(),
             '=', $this->questionAnswer->getTable() . '.m_id')
             ->where($this->questionAnswer->getTable() . '.qc_id', $cid)
-            ->where($this->questionAnswer->getTable() . '.correct', '>=', 60)
+            ->where($this->questionAnswer->getTable() . '.correct', '>=', 80)
             ->orderBy($this->questionAnswer->getTable() . '.created_at', 'desc')
             ->paginate(10, [
                 $this->questionAnswer->getTable() . '.id', $this->memberModel->getTable() . '.nickname',
