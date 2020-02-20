@@ -49,7 +49,15 @@
                                                        value="{{ $search or '' }}">
                                             </label>
 
+                                            <input type="hidden" name="integral" value="{{ $integral or '' }}">
+                                            <input type="hidden" name="success_rate" value="{{ $success_rate or '' }}">
+
                                             <button class="btn btn-sm btn-primary">确定</button>
+
+                                            <button class="btn btn-sm btn-danger btn-integral">按积分排序
+                                            </button>
+                                            <button class="btn btn-sm btn-info btn-success-rate">按达标率排序
+                                            </button>
                                         </div>
                                     </form>
                                 </div>
@@ -135,4 +143,15 @@
 @section('js')
     <script src="{{asset(getThemeAssets('dataTables/datatables.min.js', true))}}"></script>
     <script src="{{asset(getThemeAssets('layer/layer.js', true))}}"></script>
+    <script>
+        $(function () {
+            $('.btn-integral').on('click', function () {
+                $("[name=\"integral\"]").val(1);
+            });
+
+            $('.btn-success-rate').on('click', function () {
+                $("[name=\"success_rate\"]").val(1);
+            });
+        });
+    </script>
 @endsection

@@ -38,6 +38,8 @@ Route::group([], function ($router) {
 
             // 期题管理
             $router->resource('cycle', 'CycleController');
+            // 期题达标人员
+            $router->get('cycle/rate/member/{cid}', 'CycleController@rate')->name('cycle.rate.member');
 
             // 期题题目管理
             $router->resource('question', 'QuestionController');

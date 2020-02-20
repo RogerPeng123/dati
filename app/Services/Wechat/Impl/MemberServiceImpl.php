@@ -95,6 +95,9 @@ class MemberServiceImpl implements MemberService
 
         throw_unless($result, ApiResponseExceptions::class, '注册失败');
 
+        //注册成功之后，清理总人数缓存
+        Cache::forget('COUNT_MEMBER_NUM');
+
         unset($this->memberModel->password);
         return $this->memberModel;
     }
@@ -162,19 +165,7 @@ class MemberServiceImpl implements MemberService
      */
     function memberInfo()
     {
-        if (Cache::has('API_TOKEN_MEMBER_' . $this->request->header('x-api-key')))
-            return Cache::get('API_TOKEN_MEMBER_' . $this->request->header('x-api-key'));
-
-        $this->memberModel = $this->memberModel->where('api_token', $this->request->header('x-api-key'))->first();
-
-        unset($this->memberModel->password);
-        unset($this->memberModel->deleted_at);
-        unset($this->memberModel->created_at);
-
-        throw_unless($this->memberModel,
-            ApiAuthenticationException::class, '登录信息失效,请重新登录');
-
-        $this->memberModel->cover = env('APP_URL') . $this->memberModel->cover;
+        $this->memberModel = Cache::get('API_TOKEN_MEMBER_' . $this->request->header('x-api-key'));
 
         //题库待完成数据
         $this->memberModel->pending = $this->pending($this->memberModel->id);
@@ -182,52 +173,15 @@ class MemberServiceImpl implements MemberService
         //题库完成率计算
         $this->memberModel->completion = $this->completion($this->memberModel->pending);
 
-        //题库达标率计算
-        $this->memberModel->success_rate = $this->successRate($this->memberModel->id);
-
         Cache::put('API_TOKEN_MEMBER_' . $this->request->header('x-api-key'), $this->memberModel, 60 * 24 * 30);
 
         return $this->memberModel;
     }
 
-    //达标率
-    private function successRate(int $mId): float
-    {
-        $cycles = $this->cycleModel->get(['id']);
-
-        $count = 0;
-        $corrects = 0;
-
-        foreach ($cycles as $cycle) {
-            $exists = $this->existesCycle($cycle->id, $mId);
-            if (!$exists) {
-                $count++;
-
-                $corrects += $this->correctCount($cycle->id);
-            }
-        }
-
-        if ($corrects != 0) {
-            return round($corrects / $count, 2);
-        }
-
-        return 0;
-    }
-
-    private function correctCount(int $id): float
-    {
-        return Cache::remember('QUESTION_ANSWER_CORRECT_' . $id, 60 * 24 * 30, function () use ($id) {
-            $answer = $this->questionAnswerModel->where(['qc_id' => $id, 'm_id' => $this->memberModel->id])
-                ->orderBy('id', 'desc')->first(['correct']);
-
-            return $answer['correct'];
-        });
-    }
-
     //计算出完成率
     private function completion(int $pendint): float
     {
-        $count = $this->cycleModel->count();
+        $count = $this->cycleModel->where('status', $this->cycleModel::SHOW_STATUS)->count();
 
         return round(($count - $pendint) / $count * 100, 2);
     }
@@ -235,7 +189,7 @@ class MemberServiceImpl implements MemberService
     //计算当前用户在题库中没有作答的题目数量
     private function pending(int $mId): int
     {
-        $cycles = $this->cycleModel->get(['id']);
+        $cycles = $this->cycleModel->where('status', $this->cycleModel::SHOW_STATUS)->get(['id']);
 
         $num = 0;
         foreach ($cycles as $cycle) {

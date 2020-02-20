@@ -70,6 +70,7 @@
                                             <th>序号</th>
                                             <th>标题</th>
                                             <th>题量</th>
+                                            <th>达标人数/总人数</th>
                                             <th>是否开放</th>
                                             <th>创建时间</th>
                                             <th>修改时间</th>
@@ -86,6 +87,11 @@
                                                         <a href="{{ route('question.index',['qc_id'=>$item->id]) }}"> {{ $item->title }}</a>
                                                     </td>
                                                     <td>{{ $item->num }}</td>
+                                                    <td>
+                                                        <a href="{{ route('cycle.rate.member',['cid'=>$item->id]) }}">
+                                                            {{ $item->standar_num }}/{{ $countMember }}
+                                                        </a>
+                                                    </td>
                                                     <td>{{ $item->status ? '开放' : '未开放' }}</td>
                                                     <td>{{ $item->created_at }}</td>
                                                     <td>{{ $item->updated_at }}</td>
@@ -108,7 +114,7 @@
                                             @endforeach
                                         @else
                                             <tr role="row" class="odd">
-                                                <td colspan="7">没有数据</td>
+                                                <td colspan="8">没有数据</td>
                                             </tr>
                                         @endif
 

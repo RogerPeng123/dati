@@ -294,6 +294,9 @@ class CycleServiceImpl implements CycleService
                 //答题成功后执行新增积分操作
                 $res = $this->memberModel->where('id', $member->id)->increment('integral', $result['integral']);
 
+                //答题成功后执行答题新增一个达标人数
+                $this->cycleModels->where('id', $params['qc_id'])->increment('standar_num');
+
                 if (!$res)
                     throw new ApiResponseExceptions('积分添加失败');
 
@@ -320,6 +323,10 @@ class CycleServiceImpl implements CycleService
 
             $this->memberModel->where('id', $member->id)->increment('questions_num');
 
+            //更新用户的达标率
+            $success_rate = $this->successRate($member->id);
+            $this->memberModel->where('id', $member->id)->update(['success_rate' => $success_rate]);
+
             DB::commit();
 
             //清理缓存
@@ -332,6 +339,53 @@ class CycleServiceImpl implements CycleService
         $this->logger->info('答题反馈', $result);
 
         return $result;
+    }
+
+    //达标率
+    private function successRate(int $mId): float
+    {
+        $cycles = $this->cycleModels->where('status', $this->cycleModels::SHOW_STATUS)->get(['id']);
+
+        $count = 0;
+        $corrects = 0;
+
+        foreach ($cycles as $cycle) {
+            $exists = $this->existesCycle($cycle->id, $mId);
+            if (!$exists) {
+                $count++;
+
+                $corrects += $this->correctCount($cycle->id, $mId);
+            }
+        }
+
+        if ($corrects != 0) {
+            return round($corrects / $count, 2);
+        }
+
+        return 0;
+    }
+
+    private function correctCount(int $id, int $mId): float
+    {
+        return Cache::remember('QUESTION_ANSWER_CORRECT_' . $id, 60 * 24 * 30, function () use ($id, $mId) {
+            $answer = $this->questionAnswerModels->where(['qc_id' => $id, 'm_id' => $mId])
+                ->orderBy('id', 'desc')->first(['correct']);
+
+            return $answer['correct'];
+        });
+    }
+
+    //判断当前用户对于答题是否作答
+    private function existesCycle($qcId, $mId): int
+    {
+        return Cache::remember('QUESTION_ANSWER_EXISTS_QC_ID_' . $qcId . '_MID_' . $mId, 60 * 24 * 30,
+            function () use ($qcId, $mId) {
+                if ($this->questionAnswerModels->where(['qc_id' => $qcId, 'm_id' => $mId])->exists()) {
+                    return 0;
+                } else {
+                    return 1;
+                }
+            });
     }
 
     function getCycleSpecialList()

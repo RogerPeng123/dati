@@ -34,59 +34,35 @@ class MembersController extends Controller
     public function index(Request $request)
     {
         $search = $request->get('search');
+
+        $integral = $request->get('integral', null);
+        $success_rate = $request->get('success_rate', null);
+
         $data = $this->memebrModel
             ->when($search, function ($query) use ($search) {
                 return $query->where('username', 'like', "%$search%");
-            })->orderBy('created_at', 'desc')->paginate(10);
+            })
+            ->when($integral, function ($query) {
+                return $query->orderBy('integral', 'desc');
+            })
+            ->when($success_rate, function ($query) {
+                return $query->orderBy('success_rate', 'desc');
+            })
+            ->orderBy('created_at', 'desc')->paginate(10);
 
 
         foreach ($data as $item) {
             $item->pending = $this->pending($item->id);
             $item->completion = $this->completion($item->pending);
-            $item->success_rate = $this->successRate($item->id);
         }
 
         return view(getThemeView('members.lists'), ['data' => $data, 'search' => $search]);
     }
 
-    //达标率
-    private function successRate(int $mId): float
-    {
-        $cycles = $this->cycleModel->get(['id']);
-
-        $count = 0;
-        $corrects = 0;
-
-        foreach ($cycles as $cycle) {
-            $exists = $this->existesCycle($cycle->id, $mId);
-            if (!$exists) {
-                $count++;
-
-                $corrects += $this->correctCount($cycle->id, $mId);
-            }
-        }
-
-        if ($corrects != 0) {
-            return round($corrects / $count, 2);
-        }
-
-        return 0;
-    }
-
-    private function correctCount(int $id, int $mId): float
-    {
-        return Cache::remember('QUESTION_ANSWER_CORRECT_' . $id, 60 * 24 * 30, function () use ($id, $mId) {
-            $answer = $this->questionAnswerModel->where(['qc_id' => $id, 'm_id' => $mId])
-                ->orderBy('id', 'desc')->first(['correct']);
-
-            return $answer['correct'];
-        });
-    }
-
     //计算出完成率
     private function completion(int $pendint): float
     {
-        $count = $this->cycleModel->count();
+        $count = $this->cycleModel->where('status', $this->cycleModel::SHOW_STATUS)->count();
 
         return round(($count - $pendint) / $count * 100, 2);
     }
@@ -94,7 +70,7 @@ class MembersController extends Controller
     //计算当前用户在题库中没有作答的题目数量
     private function pending(int $mId): int
     {
-        $cycles = $this->cycleModel->get(['id']);
+        $cycles = $this->cycleModel->where('status', $this->cycleModel::SHOW_STATUS)->get(['id']);
 
         $num = 0;
         foreach ($cycles as $cycle) {

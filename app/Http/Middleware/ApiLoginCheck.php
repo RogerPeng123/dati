@@ -47,7 +47,6 @@ class ApiLoginCheck
     public function handle($request, Closure $next)
     {
         $token = $request->header('x-api-key', null);
-        Cache::forget('API_TOKEN_MEMBER_' . $token);
         if (!$token) {
             throw new ApiAuthenticationException();
         }

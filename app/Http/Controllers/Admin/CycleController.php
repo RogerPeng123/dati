@@ -3,16 +3,35 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Cycles;
+use App\Models\Members;
+use App\Models\QuestionAnswer;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Cache;
 
 class CycleController extends Controller
 {
+
+    /**
+     * @var Cycles
+     */
     private $cycleModel;
 
-    public function __construct(Cycles $cycleModel)
+    /**
+     * @var Members
+     */
+    private $memberModel;
+
+    /**
+     * @var QuestionAnswer
+     */
+    private $questionAnswer;
+
+    public function __construct(Cycles $cycleModel, Members $members, QuestionAnswer $questionAnswer)
     {
         $this->cycleModel = $cycleModel;
+        $this->memberModel = $members;
+        $this->questionAnswer = $questionAnswer;
     }
 
     /**
@@ -26,6 +45,8 @@ class CycleController extends Controller
     {
         $search = $request->get('search', '');
 
+        $countMember = $this->countMember();
+
         $data = $this->cycleModel->when($search, function ($query) use ($search) {
             $query->where('title', 'like', "%$search%");
         })
@@ -34,8 +55,17 @@ class CycleController extends Controller
             ->paginate(10);
 
         return view(getThemeView('cycle.list'), [
-            'data' => $data, 'search' => $request->get('search', '')
+            'data' => $data, 'search' => $request->get('search', ''),
+            'countMember' => $countMember
         ]);
+    }
+
+    //计算所有的用户
+    private function countMember(): int
+    {
+        return Cache::remember('COUNT_MEMBER_NUM', 60 * 24 * 7, function () {
+            return $this->memberModel->count();
+        });
     }
 
     /**
@@ -173,5 +203,22 @@ class CycleController extends Controller
         $this->cycleModel->destroy(decodeId($id)) ? $data = ['code' => 200] : $data = ['code' => 500];
 
         return response()->json($data);
+    }
+
+    public function rate($cid)
+    {
+        //理论上来讲，一个用户答题的时候  只有一次会超过80%
+        $data = $this->questionAnswer->leftJoin($this->memberModel->getTable(),
+            $this->memberModel->getTable() . '.' . $this->memberModel->getKeyName(),
+            '=', $this->questionAnswer->getTable() . '.m_id')
+            ->where($this->questionAnswer->getTable() . '.qc_id', $cid)
+            ->where($this->questionAnswer->getTable() . '.correct', '>=', 60)
+            ->orderBy($this->questionAnswer->getTable() . '.created_at', 'desc')
+            ->paginate(10, [
+                $this->questionAnswer->getTable() . '.id', $this->memberModel->getTable() . '.nickname',
+                $this->questionAnswer->getTable() . '.correct', $this->questionAnswer->getTable() . '.created_at'
+            ]);
+
+        return view(getThemeView('cycle.rate'), ['data' => $data]);
     }
 }
