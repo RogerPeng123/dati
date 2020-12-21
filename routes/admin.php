@@ -60,6 +60,12 @@ Route::group([], function ($router) {
 
             // 专项答题管理
             $router->resource('special', 'SpecialController');
+
+            //新闻类别
+            $router->resource('news-type', 'NewsTypeController');
+
+            //新闻详情
+            $router->resource('news-world', 'NewsController');
         });
 
     });

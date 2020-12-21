@@ -90,6 +90,7 @@ class MemberServiceImpl implements MemberService
         $this->memberModel->nickname = $param['nickname'];
         $this->memberModel->password = Crypt::encryptString($param['password']);
         $this->memberModel->cover = '/cover/cover.jpeg';
+        $this->memberModel->type = $param['type'];
 
         $result = $this->memberModel->save();
 

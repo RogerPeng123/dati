@@ -126,6 +126,7 @@ class CycleController extends Controller
         $this->cycleModel->cycles = $cycle;
         $this->cycleModel->status = $request->get('status');
         $this->cycleModel->special = $this->cycleModel::TYPE_SPECIAL_NORMAL;
+        $this->cycleModel->class_type = $request->get('class_type');
 
         $this->cycleModel->save()
             ? flash('新增期题成功')->success() : flash('新增期题失败')->error();
@@ -174,17 +175,20 @@ class CycleController extends Controller
         $this->validate($request, [
             'title' => 'required|max:20',
             'status' => 'required|max:1',
+            'class_type' => 'required'
         ], [
             'title.required' => '不允许为空',
             'title.max' => '超出标题最大限制',
             'status.required' => '请填写是否显示参数',
             'status.max' => '是否显示格式不正确',
+            'class_type.required' => '可查看的题目类型不能为空'
         ]);
 
         $this->cycleModel = $this->cycleModel->find(decodeId($id));
 
         $this->cycleModel->status = $request->get('status');
         $this->cycleModel->title = $request->get('title');
+        $this->cycleModel->class_type = $request->get('class_type');
 
         $this->cycleModel->save() ? flash('更新成功')->success() : flash('更新失败')->error();
 

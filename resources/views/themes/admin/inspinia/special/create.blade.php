@@ -114,6 +114,44 @@
                             </div>
 
                             <div class="hr-line-dashed"></div>
+                            <div class="form-group{{ $errors->has('class_type') ? ' has-error' : '' }}">
+                                <label class="col-sm-2 control-label">{{trans('cycle.class_type')}}</label>
+                                <div class="col-sm-10">
+                                    <div class="i-checks">
+                                        <label class="">
+                                            <div class="iradio_square-green-type checked" style="position: relative;">
+                                                <input type="radio" value="1" name="class_type" class="radio-class" checked> 普通民众
+                                                <ins class="iCheck-helper"></ins>
+                                            </div>
+                                            <i></i>
+                                        </label>
+                                    </div>
+                                    <div class="i-checks">
+                                        <label class="">
+                                            <div class="iradio_square-green-type" style="position: relative;">
+                                                <input type="radio" value="2" name="class_type" class="radio-class"> 工作人员
+                                                <ins class="iCheck-helper"></ins>
+                                            </div>
+                                            <i></i>
+                                        </label>
+                                    </div>
+
+                                    <div class="i-checks">
+                                        <label class="">
+                                            <div class="iradio_square-green-type" style="position: relative;">
+                                                <input type="radio" value="3" name="class_type" class="radio-class"> 帮扶人员
+                                                <ins class="iCheck-helper"></ins>
+                                            </div>
+                                            <i></i>
+                                        </label>
+                                    </div>
+                                    @if ($errors->has('class_type'))
+                                        <span class="help-block m-b-none text-danger">{{ $errors->first('class_type') }}</span>
+                                    @endif
+                                </div>
+                            </div>
+
+                            <div class="hr-line-dashed"></div>
                             <div class="form-group">
                                 <div class="col-sm-4 col-sm-offset-2">
                                     <a class="btn btn-white"

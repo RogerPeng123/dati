@@ -63,4 +63,13 @@ Route::group(['namespace' => 'Wechat'], function ($router) {
 
     });
 
+    //新闻中心
+    $router->group(['prefix' => 'news'], function ($router) {
+        //分类列表
+        $router->get('/types', 'NewsController@types');
+        //新闻列表
+        $router->get('/list/{type}', 'NewsController@getNews')->where(['type' => '[0-9]+']);
+        //新闻详情
+        $router->get('/detail/{id}', 'NewsController@findNews')->where(['id' => '[0-9]+']);
+    });
 });

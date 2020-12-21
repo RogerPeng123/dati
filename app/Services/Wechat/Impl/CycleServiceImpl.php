@@ -84,6 +84,7 @@ class CycleServiceImpl implements CycleService
         $db = $this->cycleModels
             ->where('status', $this->cycleModels::SHOW_STATUS)
             ->where('special', $this->cycleModels::TYPE_SPECIAL_NORMAL)
+            ->where('class_type', $user->type)
             ->orderBy('years', 'desc')
             ->orderBy('months', 'desc')
             ->orderBy('cycles', 'desc')
@@ -390,15 +391,16 @@ class CycleServiceImpl implements CycleService
 
     function getCycleSpecialList()
     {
+        $member = Cache::get('API_TOKEN_MEMBER_' . $this->request->header('x-api-key'));
+
         $db = $this->cycleModels
             ->where('status', $this->cycleModels::SHOW_STATUS)
             ->where('special', $this->cycleModels::TYPE_SPECIAL_TOP)
+            ->where('class_type', $member->type)
             ->orderBy('years', 'desc')
             ->orderBy('months', 'desc')
             ->orderBy('cycles', 'desc')
             ->simplePaginate(10, ['id', 'title', 'years', 'months', 'cycles']);
-
-        $member = Cache::get('API_TOKEN_MEMBER_' . $this->request->header('x-api-key'));
 
         foreach ($db as $item) {
             if ($this->questionAnswerModels->where(['qc_id' => $item->id, 'm_id' => $member->id])->exists()) {

@@ -71,6 +71,25 @@
                             </div>
                             <div class="hr-line-dashed"></div>
 
+                            <div class="form-group {{ $errors->has('class_type') ? ' has-error' : '' }}">
+                                <label class="col-sm-2 control-label">查看角色(可多选)</label>
+                                <div class="col-sm-10">
+                                    <label class="checkbox-inline">
+                                        <input type="checkbox" name="class_type[]" value="1" {{ in_array(1,$view->class_type) ? 'checked' : '' }}>普通民众
+                                    </label>
+                                    <label class="checkbox-inline">
+                                        <input type="checkbox" name="class_type[]" value="2" {{ in_array(2,$view->class_type) ? 'checked' : '' }}>工作人员
+                                    </label>
+                                    <label class="checkbox-inline">
+                                        <input type="checkbox" name="class_type[]" value="3" {{ in_array(3,$view->class_type) ? 'checked' : '' }}>帮扶人员
+                                    </label>
+                                    @if ($errors->has('class_type'))
+                                        <span class="help-block m-b-none text-danger">{{ $errors->first('class_type') }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+
                             <div class="form-group{{ $errors->has('parsing') ? ' has-error' : '' }}">
                                 <label class="col-sm-2 control-label">内容</label>
                                 <div class="col-sm-10">

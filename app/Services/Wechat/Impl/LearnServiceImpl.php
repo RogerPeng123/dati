@@ -54,8 +54,12 @@ class LearnServiceImpl implements LearnService
 
     function getLearnLists()
     {
-        return $this->learnModel->orderBy('created_at', 'desc')
-            ->simplePaginate(10, ['id', 'title', 'abstract'])->items();
+        $member = Cache::get('API_TOKEN_MEMBER_' . $this->request->header('x-api-key'));
+
+        return $this->learnModel->where('class_type', 'licke', "%{$member->class_type}%")
+            ->orderBy('created_at', 'desc')
+            ->simplePaginate(10, ['id', 'title', 'abstract'])
+            ->items();
     }
 
     /**

@@ -1,18 +1,44 @@
 @extends('layouts.'.getTheme())
 @section('css')
     <link href="{{asset(getThemeAssets('iCheck/custom.css', true))}}" rel="stylesheet">
+    <style type="text/css">
+        .iCheck-helper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: block;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: rgb(255, 255, 255);
+            border: 0;
+            opacity: 0;
+        }
+
+        .radio-class {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .i-checks {
+            text-align: center;
+            float: left;
+            margin-left: 15px;
+        }
+    </style>
 @endsection
 @section('content')
     @inject('userPresenter','App\Repositories\Presenters\Admin\UserPresenter')
     <div class="row wrapper border-bottom white-bg page-heading">
         <div class="col-lg-10">
-            <h2>学习管理</h2>
+            <h2>新闻中心</h2>
             <ol class="breadcrumb">
                 <li>
-                    <a href="javascript:void(0);">学习管理</a>
+                    <a href="javascript:void(0);">新闻中心</a>
                 </li>
                 <li class="active">
-                    <strong>知识列表</strong>
+                    <strong>新增新闻</strong>
                 </li>
             </ol>
         </div>
@@ -31,7 +57,7 @@
             <div class="col-lg-12">
                 <div class="ibox float-e-margins">
                     <div class="ibox-title">
-                        <h5>{!! trans('common.create') !!} 知识点</h5>
+                        <h5>{!! trans('common.create') !!} 新闻</h5>
                         <div class="ibox-tools">
                             <a class="collapse-link">
                                 <i class="fa fa-chevron-up"></i>
@@ -43,7 +69,7 @@
                     </div>
                     <div class="ibox-content">
                         @include('flash::message')
-                        <form method="post" action="{{ route('learn.store') }}" class="form-horizontal">
+                        <form method="post" action="{{ route('news-world.store') }}" class="form-horizontal">
                             {{csrf_field()}}
 
                             <div class="form-group{{ $errors->has('title') ? ' has-error' : '' }}">
@@ -68,20 +94,23 @@
                             </div>
                             <div class="hr-line-dashed"></div>
 
-                            <div class="form-group {{ $errors->has('class_type') ? ' has-error' : '' }}">
-                                <label class="col-sm-2 control-label">查看角色(可多选)</label>
+
+                            <div class="form-group {{ $errors->has('type') ? ' has-error' : '' }}">
+                                <label class="col-sm-2 control-label">类别</label>
                                 <div class="col-sm-10">
-                                    <label class="checkbox-inline">
-                                        <input type="checkbox" name="class_type[]" value="1">普通民众
-                                    </label>
-                                    <label class="checkbox-inline">
-                                        <input type="checkbox" name="class_type[]" value="2">工作人员
-                                    </label>
-                                    <label class="checkbox-inline">
-                                        <input type="checkbox" name="class_type[]" value="3">帮扶人员
-                                    </label>
-                                    @if ($errors->has('class_type'))
-                                        <span class="help-block m-b-none text-danger">{{ $errors->first('class_type') }}</span>
+                                    @foreach($news_type  as $item)
+                                    <div class="i-checks">
+                                        <label class="">
+                                            <div class="iradio_square-green" style="position: relative;">
+                                                <input type="radio" value="{{ $item->id}}" name="type" class="radio-class">
+                                                <ins class="iCheck-helper"></ins>
+                                            </div>
+                                            <i></i> {{ $item->title }}
+                                        </label>
+                                    </div>
+                                    @endforeach
+                                    @if ($errors->has('type'))
+                                        <span class="help-block m-b-none text-danger">{{ $errors->first('type') }}</span>
                                     @endif
                                 </div>
                             </div>
@@ -108,7 +137,7 @@
                                 <div class="col-sm-4 col-sm-offset-2">
                                     <a class="btn btn-white"
                                        href="">{!!trans('common.cancel')!!}</a>
-                                    @if(haspermission('learncontroller.store'))
+                                    @if(haspermission('newscontroller.store'))
                                         <button class="btn btn-primary" id="questionSub"
                                                 type="submit">{!! trans('common.create') !!}</button>
                                     @endif

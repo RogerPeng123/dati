@@ -6,13 +6,13 @@
     @inject('userPresenter','App\Repositories\Presenters\Admin\UserPresenter')
     <div class="row wrapper border-bottom white-bg page-heading">
         <div class="col-lg-10">
-            <h2>学习管理</h2>
+            <h2>新闻中心</h2>
             <ol class="breadcrumb">
                 <li>
-                    <a href="javascript:void(0);">学习管理</a>
+                    <a href="javascript:void(0);">新闻中心</a>
                 </li>
                 <li class="active">
-                    <strong>知识列表</strong>
+                    <strong>新闻分类</strong>
                 </li>
             </ol>
         </div>
@@ -31,7 +31,7 @@
             <div class="col-lg-12">
                 <div class="ibox float-e-margins">
                     <div class="ibox-title">
-                        <h5>{!! trans('common.create') !!} 知识点</h5>
+                        <h5>{!! trans('common.create') !!} 新闻分类</h5>
                         <div class="ibox-tools">
                             <a class="collapse-link">
                                 <i class="fa fa-chevron-up"></i>
@@ -43,11 +43,11 @@
                     </div>
                     <div class="ibox-content">
                         @include('flash::message')
-                        <form method="post" action="{{ route('learn.store') }}" class="form-horizontal">
+                        <form method="post" action="{{ route('news-type.store') }}" class="form-horizontal">
                             {{csrf_field()}}
 
                             <div class="form-group{{ $errors->has('title') ? ' has-error' : '' }}">
-                                <label class="col-sm-2 control-label">标题</label>
+                                <label class="col-sm-2 control-label">名称</label>
                                 <div class="col-sm-10">
                                     <input type="text" class="form-control" name="title">
                                     @if ($errors->has('title'))
@@ -57,58 +57,12 @@
                             </div>
                             <div class="hr-line-dashed"></div>
 
-                            <div class="form-group {{ $errors->has('abstract') ? ' has-error' : '' }}">
-                                <label class="col-sm-2 control-label">摘要</label>
-                                <div class="col-sm-10">
-                                    <input type="text" class="form-control" name="abstract">
-                                    @if ($errors->has('abstract'))
-                                        <span class="help-block m-b-none text-danger">{{ $errors->first('abstract') }}</span>
-                                    @endif
-                                </div>
-                            </div>
-                            <div class="hr-line-dashed"></div>
-
-                            <div class="form-group {{ $errors->has('class_type') ? ' has-error' : '' }}">
-                                <label class="col-sm-2 control-label">查看角色(可多选)</label>
-                                <div class="col-sm-10">
-                                    <label class="checkbox-inline">
-                                        <input type="checkbox" name="class_type[]" value="1">普通民众
-                                    </label>
-                                    <label class="checkbox-inline">
-                                        <input type="checkbox" name="class_type[]" value="2">工作人员
-                                    </label>
-                                    <label class="checkbox-inline">
-                                        <input type="checkbox" name="class_type[]" value="3">帮扶人员
-                                    </label>
-                                    @if ($errors->has('class_type'))
-                                        <span class="help-block m-b-none text-danger">{{ $errors->first('class_type') }}</span>
-                                    @endif
-                                </div>
-                            </div>
-                            <div class="hr-line-dashed"></div>
-
-                            <div class="form-group {{ $errors->has('parsing') ? ' has-error' : '' }}">
-                                <label class="col-sm-2 control-label">内容</label>
-                                <div class="col-sm-10">
-                                    <div id="editor">
-
-                                    </div>
-                                    @if ($errors->has('parsing'))
-                                        <span class="help-block m-b-none text-danger">{{ $errors->first('parsing') }}</span>
-                                    @endif
-                                </div>
-                            </div>
-
-                            <div class="hr-line-dashed"></div>
-
-                            <input type="hidden" name="content" id="content" value="">
-
 
                             <div class="form-group">
                                 <div class="col-sm-4 col-sm-offset-2">
                                     <a class="btn btn-white"
                                        href="">{!!trans('common.cancel')!!}</a>
-                                    @if(haspermission('learncontroller.store'))
+                                    @if(haspermission('newstypecontroller.store'))
                                         <button class="btn btn-primary" id="questionSub"
                                                 type="submit">{!! trans('common.create') !!}</button>
                                     @endif

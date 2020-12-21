@@ -29,7 +29,7 @@ class RegisterHandle extends Controller
 
     public function __invoke()
     {
-        $param = $this->request->only(['username', 'nickname', 'password']);
+        $param = $this->request->only(['username', 'nickname', 'password', 'type']);
 
         return ResponseApi::ApiSuccess('注册成功', $this->memberService->registerMember($param));
     }

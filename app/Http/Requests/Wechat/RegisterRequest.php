@@ -28,7 +28,8 @@ class RegisterRequest extends FormRequest
         $rules = [
             'username' => ['required', 'string', 'unique:members'],
             'nickname' => ['required', 'string', 'unique:members'],
-            'password' => ['required', 'string']
+            'password' => ['required', 'string'],
+            'type' => ['required', 'integer']
         ];
 
         return $rules;
@@ -44,7 +45,9 @@ class RegisterRequest extends FormRequest
             'nickname.string' => '用户昵称数据格式不对',
             'nickname.unique' => '该昵称已被注册',
             'password.required' => '密码不能为空',
-            'password.string' => '密码数据格式不正确'
+            'password.string' => '密码数据格式不正确',
+            'type.required' => '用户类别不能为空',
+            'type.integer' => '用户类别数据类型不正确'
         ];
 
         return $message;

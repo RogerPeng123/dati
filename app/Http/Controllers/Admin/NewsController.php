@@ -2,17 +2,28 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Learn;
+use App\Models\News;
+use App\Models\NewsType;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-class LearnController extends Controller
+/**
+ *  新闻中心
+ *
+ * Class NewsController
+ * @package App\Http\Controllers\Admin
+ */
+class NewsController extends Controller
 {
-    private $learnModel;
+    private $newsModel;
 
-    public function __construct(Learn $learnModel)
+    private $newsTypeModel;
+
+    public function __construct(News $newsModel, NewsType $newsType)
     {
-        $this->learnModel = $learnModel;
+        $this->newsModel = $newsModel;
+
+        $this->newsTypeModel = $newsType;
     }
 
     /**
@@ -26,11 +37,11 @@ class LearnController extends Controller
     {
         $search = $request->get('search', '');
 
-        $data = $this->learnModel->when($search, function ($query) use ($search) {
+        $data = $this->newsModel->when($search, function ($query) use ($search) {
             return $query->where('title', 'like', "%$search%");
         })->orderBy('created_at', 'desc')->paginate(10);
 
-        return view(getThemeView('learn.lists'), ['data' => $data, 'search' => $search]);
+        return view(getThemeView('news.lists'), ['data' => $data, 'search' => $search]);
     }
 
     /**
@@ -41,7 +52,9 @@ class LearnController extends Controller
      */
     public function create()
     {
-        return view(getThemeView('learn.create'));
+        $newsTypes = $this->newsTypeModel->get();
+
+        return view(getThemeView('news.create'), ['news_type' => $newsTypes]);
     }
 
     /**
@@ -56,7 +69,7 @@ class LearnController extends Controller
         $this->validate($request, [
             'title' => 'required|max:100',
             'abstract' => 'required|max:50',
-            'class_type' => 'required',
+            'type' => 'required',
             'content' => 'required'
         ], [
             'title.required' => '知识点标题不允许为空',
@@ -64,21 +77,21 @@ class LearnController extends Controller
             'abstract.required' => '摘要不允许为空',
             'abstract.max' => '摘要长度超出最大限制',
             'content.required' => '知识点内容不允许为空',
-            'class_type.required' => '可查看用户类别不能为空'
+            'type.required' => '新闻类别不能为空'
         ]);
 
-        $this->learnModel->title = $request->get('title');
-        $this->learnModel->abstract = $request->get('abstract');
-        $this->learnModel->content = $request->get('content');
-        $this->learnModel->admin_id = auth()->id();
-        $this->learnModel->status = $this->learnModel::STATUS_NORMAL;
-        $this->learnModel->class_type = implode(',', $request->get('class_type'));
+        $this->newsModel->title = $request->get('title');
+        $this->newsModel->abstract = $request->get('abstract');
+        $this->newsModel->content = $request->get('content');
+        $this->newsModel->admin_id = auth()->id();
+        $this->newsModel->status = $this->newsModel::STATUS_NORMAL;
+        $this->newsModel->type = $request->get('type');
 
-        $result = $this->learnModel->save();
+        $result = $this->newsModel->save();
 
         $result ? flash()->success('新增成功') : flash()->error('新增失败');
 
-        return redirect()->route('learn.index');
+        return redirect()->route('news-world.index');
 
     }
 
@@ -102,11 +115,11 @@ class LearnController extends Controller
      */
     public function edit($id)
     {
-        $data = $this->learnModel->find(decodeId($id));
+        $data = $this->newsModel->find(decodeId($id));
 
-        $data->class_type = explode(',', $data->class_type);
+        $newsTypes = $this->newsTypeModel->get();
 
-        return view(getThemeView('learn.edit'), ['view' => $data]);
+        return view(getThemeView('news.edit'), ['view' => $data, 'news_type' => $newsTypes]);
     }
 
     /**
@@ -122,7 +135,7 @@ class LearnController extends Controller
         $this->validate($request, [
             'title' => 'required|max:100',
             'abstract' => 'required|max:50',
-            'class_type' => 'required',
+            'type' => 'required',
             'content' => 'required'
         ], [
             'title.required' => '知识点标题不允许为空',
@@ -130,23 +143,23 @@ class LearnController extends Controller
             'abstract.required' => '摘要不允许为空',
             'abstract.max' => '摘要长度超出最大限制',
             'content.required' => '知识点内容不允许为空',
-            'class_type.required' => '可查看用户类别不能为空'
+            'type.required' => '可查看用户类别不能为空'
         ]);
 
-        $this->learnModel = $this->learnModel->find(decodeId($id));
+        $this->newsModel = $this->newsModel->find(decodeId($id));
 
-        $this->learnModel->title = $request->get('title');
-        $this->learnModel->abstract = $request->get('abstract');
-        $this->learnModel->content = $request->get('content');
-        $this->learnModel->admin_id = auth()->id();
-        $this->learnModel->status = $this->learnModel::STATUS_SHOW;
-        $this->learnModel->class_type = implode(',', $request->get('class_type'));
+        $this->newsModel->title = $request->get('title');
+        $this->newsModel->abstract = $request->get('abstract');
+        $this->newsModel->content = $request->get('content');
+        $this->newsModel->admin_id = auth()->id();
+        $this->newsModel->status = $this->newsModel::STATUS_SHOW;
+        $this->newsModel->type = $request->get('type');
 
-        $result = $this->learnModel->save();
+        $result = $this->newsModel->save();
 
         $result ? flash()->success('新增成功') : flash()->error('新增失败');
 
-        return redirect()->route('learn.index');
+        return redirect()->route('news-world.index');
     }
 
     /**
@@ -158,7 +171,7 @@ class LearnController extends Controller
      */
     public function destroy($id)
     {
-        $this->learnModel->destroy(decodeId($id)) ? $data = ['code' => 200] : $data = ['code' => 500];
+        $this->newsModel->destroy(decodeId($id)) ? $data = ['code' => 200] : $data = ['code' => 500];
 
         return response()->json($data);
     }
