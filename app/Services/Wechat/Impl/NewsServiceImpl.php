@@ -37,7 +37,7 @@ class NewsServiceImpl implements NewsService
             ->where('type', $type)
             ->where('status', $this->newsModel::STATUS_SHOW)
             ->orderBy('created_at', 'desc')
-            ->simplePaginate(10, ['id', 'title', 'abstract'])->toArray();
+            ->simplePaginate(10, ['id', 'title', 'abstract'])->data()->toArray();
     }
 
     function findNews(int $id)
