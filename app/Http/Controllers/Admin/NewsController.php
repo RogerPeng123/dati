@@ -84,7 +84,7 @@ class NewsController extends Controller
         $this->newsModel->abstract = $request->get('abstract');
         $this->newsModel->content = $request->get('content');
         $this->newsModel->admin_id = auth()->id();
-        $this->newsModel->status = $this->newsModel::STATUS_NORMAL;
+        $this->newsModel->status = $this->newsModel::STATUS_SHOW;
         $this->newsModel->type = $request->get('type');
 
         $result = $this->newsModel->save();
