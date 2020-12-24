@@ -28,7 +28,7 @@ class NewsServiceImpl implements NewsService
 
     function getTypes()
     {
-        return $this->newsTypeModel->get()->items();
+        return $this->newsTypeModel->get(['id', 'title'])->toArray();
     }
 
     function getNews(int $type)
@@ -37,7 +37,7 @@ class NewsServiceImpl implements NewsService
             ->where('type', $type)
             ->where('status', $this->newsModel::STATUS_SHOW)
             ->orderBy('created_at', 'desc')
-            ->simplePaginate(10, ['id', 'titile', 'abstract'])->items();
+            ->simplePaginate(10, ['id', 'titile', 'abstract'])->toArray();
     }
 
     function findNews(int $id)
