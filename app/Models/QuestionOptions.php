@@ -12,6 +12,8 @@ class QuestionOptions extends Model
     const SUCCESS_OPTIONS = 1;
     const ERROR_OPTIONS = 0;
 
+    protected $fillable = ['*'];
+
     protected $table = 'question_options';
 
     protected $primaryKey = 'id';

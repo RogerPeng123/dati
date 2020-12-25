@@ -80,29 +80,32 @@
                                 <div class="col-sm-10">
                                     <div class="i-checks">
                                         <label class="">
-                                            <div class="iradio_square-green checked" style="position: relative;">
-                                                <input type="radio" value="1" name="type" class="radio-class" checked>
+                                            <div class="iradio_square-green-type" style="position: relative;">
+                                                <input type="radio" value="1" name="type"
+                                                       class="radio-class type-radio"> 判断题
                                                 <ins class="iCheck-helper"></ins>
                                             </div>
-                                            <i></i> 判断题
+                                            <i></i>
                                         </label>
                                     </div>
                                     <div class="i-checks">
                                         <label class="">
-                                            <div class="iradio_square-green" style="position: relative;">
-                                                <input type="radio" value="2" name="type" class="radio-class">
+                                            <div class="iradio_square-green-type" style="position: relative;">
+                                                <input type="radio" value="2" name="type"
+                                                       class="radio-class type-radio"> 单择题
                                                 <ins class="iCheck-helper"></ins>
                                             </div>
-                                            <i></i> 单择题
+                                            <i></i>
                                         </label>
                                     </div>
                                     <div class="i-checks">
                                         <label class="">
-                                            <div class="iradio_square-green" style="position: relative;">
-                                                <input type="radio" value="3" name="type" class="radio-class">
+                                            <div class="iradio_square-green-type" style="position: relative;">
+                                                <input type="radio" value="3" name="type"
+                                                       class="radio-class type-radio"> 多选题
                                                 <ins class="iCheck-helper"></ins>
                                             </div>
-                                            <i></i> 多选题
+                                            <i></i>
                                         </label>
                                     </div>
                                     @if ($errors->has('type'))
@@ -111,7 +114,49 @@
                                 </div>
                             </div>
 
-                            <div class="hr-line-dashed"></div>
+                            <div class="hr-line-dashed judge" style="display: none;"></div>
+                            <div class="form-group judge" style="display: none;">
+                                <label class="col-sm-2 control-label">判断答案</label>
+                                <div class="col-sm-10">
+                                    <div class="i-checks">
+                                        <label class="">
+                                            <div class="iradio_square-green" style="position: relative;">
+                                                <input type="radio" value="1" name="judge_success" class="radio-class">
+                                                <ins class="iCheck-helper"></ins>
+                                            </div>
+                                            <i></i> 正确
+                                        </label>
+                                    </div>
+                                    <div class="i-checks">
+                                        <label class="">
+                                            <div class="iradio_square-green" style="position: relative;">
+                                                <input type="radio" value="0" name="judge_success" class="radio-class">
+                                                <ins class="iCheck-helper"></ins>
+                                            </div>
+                                            <i></i> 错误
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="hr-line-dashed Choose" style="display: none;"></div>
+                            <div class="form-group Choose" style="display: none;">
+                                <label class="col-sm-2 control-label">题目选项</label>
+                                <div class="col-sm-10">
+                                    <button type="button" class="btn btn-primary add-option-button">添加选项</button>
+                                </div>
+                            </div>
+
+                            <div class="hr-line-dashed Choose after-option" style="display: none;"></div>
+                            <div class="form-group Choose" style="display: none;">
+                                <label class="col-sm-2 control-label">正确选项</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" name="success" placeholder="多个正常选项用逗号隔开">
+                                </div>
+                            </div>
+
+                            <div class="hr-line-dashed "></div>
                             <div class="form-group{{ $errors->has('parsing') ? ' has-error' : '' }}">
                                 <label class="col-sm-2 control-label">答案解析</label>
                                 <div class="col-sm-10">
@@ -171,21 +216,77 @@
     </script>
 
     <script>
+
+
         $(document).ready(function () {
 
+            $('.i-checks').iCheck({
+                checkboxClass: 'icheckbox_square-green',
+                radioClass: 'iradio_square-green',
+            });
+
+
             $(".iradio_square-green").on('click', function () {
-                $('.iradio_square-green').each(function (key, val) {
+                $('.iradio_square-green-type').each(function (key, val) {
                     if ($(val).hasClass('checked')) {
                         $(val).removeClass('checked');
                     }
                 });
             });
 
+            $(".iradio_square-green-type").on('click', function () {
+                $('.iradio_square-green-type').each(function (key, val) {
+                    if ($(val).hasClass('checked')) {
+                        $(val).removeClass('checked');
+                    }
+                });
 
-            $('.i-checks').iCheck({
-                checkboxClass: 'icheckbox_square-green',
-                radioClass: 'iradio_square-green',
+                let option = $(this).find('input').val();
+
+                switch (parseInt(option)) {
+                    case 1:
+                        showJudge();
+                        break;
+                    case 2:
+                    case 3:
+                        showChoose();
+                        break;
+                }
+
+
             });
+
+            let option_num = 1;
+            $('.add-option-button').on('click', function () {
+                let options_html = "<div class='hr-line-dashed'></div> <div class='form-group'> " +
+                    "<label class='col-sm-2 control-label'>选项" + option_num + "</label> <div class='col-sm-10'> " +
+                    "<input type='text' class='form-control' name='options[]'> </div> </div>";
+
+                $('.after-option').before(options_html);
+
+                option_num++;
+            });
+
+
+            function showChoose() {
+
+                $('.Choose').show();
+
+                hideJudge();
+            }
+
+            function showJudge() {
+                $('.judge').show();
+                hideChoose();
+            }
+
+            function hideChoose() {
+                $('.Choose').hide();
+            }
+
+            function hideJudge() {
+                $('.judge').hide();
+            }
 
 
         });

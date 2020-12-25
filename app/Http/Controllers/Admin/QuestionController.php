@@ -20,6 +20,7 @@ class QuestionController extends Controller
     {
         $this->questionModel = $question;
         $this->questionCycleModel = $cycles;
+        $this->questionOptionsModel = $questionOptionsModel;
     }
 
     /**
@@ -69,6 +70,7 @@ class QuestionController extends Controller
      */
     public function store(Request $request)
     {
+
         $this->validate($request, [
             'title' => 'required|string',
             'type' => 'required|max:2',
@@ -86,8 +88,34 @@ class QuestionController extends Controller
         $this->questionModel->qc_id = $merge['qc_id'];
         $this->questionModel->parsing = $merge['parsing'];
 
+        if ($merge['type'] == 1) {
+            $this->questionModel->judge_success = $merge['judge_success'];
+        }
+
         if ($this->questionModel->save()) {
+
             flash('新增成功')->success();
+
+            if ($merge['type'] != 1) {
+                $successStr = $request->get('success');
+                $successArray = explode(',', $successStr);
+                $options = [];
+                foreach ($request->get('options') as $key => $item) {
+                    if (empty($item)) {
+                        continue;
+                    }
+
+                    $options[] = [
+                        'q_id' => $this->questionModel->id,
+                        'content' => $item,
+                        'is_success' => in_array(($key + 1), $successArray) ? 1 : 0,
+                        'created_at' => date('Y-m-d H:i:s', time()),
+                        'updated_at' => date('Y-m-d H:i:s', time())
+                    ];
+                }
+
+                $this->questionOptionsModel->insert($options);
+            }
 
             $this->questionCycleModel->where('id', $merge['qc_id'])->increment('num');
         } else {
