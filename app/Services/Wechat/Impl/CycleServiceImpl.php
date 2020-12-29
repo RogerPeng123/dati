@@ -403,10 +403,20 @@ class CycleServiceImpl implements CycleService
             ->simplePaginate(10, ['id', 'title', 'years', 'months', 'cycles']);
 
         foreach ($db as $item) {
-            if ($this->questionAnswerModels->where(['qc_id' => $item->id, 'm_id' => $member->id])->exists()) {
+            if ($answer = $this->questionAnswerModels->where(['qc_id' => $item->id, 'm_id' => $member->id])->exists()) {
                 $item->is_answer = 1;
+
+                $item->correct = $answer->correct;
+                $item->standard = $answer->correct < 80 ? '未达标' : '达标';
+
+                $num = $this->questionAnswerModels->where(['qc_id' => $item->id, 'm_id' => $user->id])->count();
+                $item->answer_num = $num;
             } else {
                 $item->is_answer = 0;
+
+                $item->correct = 0;//正确率
+                $item->standard = '待完成';
+                $item->answer_num = 0;
             }
         }
 
